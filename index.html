@@ -341,6 +341,33 @@
         }
 
         /* ===================================
+           BOTÃO RESETAR
+           =================================== */
+        .btn-reset {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            transition: all 0.3s;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-reset:active {
+            transform: translateY(0);
+        }
+
+        /* ===================================
            RESPONSIVO (MOBILE)
            =================================== */
         @media (max-width: 768px) {
@@ -378,6 +405,7 @@
         <div class="header">
             <h1>🎯 CLARUS v3.3</h1>
             <p>Classificador por Complexidade Clínica - Fetali</p>
+            <button class="btn-reset" onclick="resetarFormulario()">🔄 Nova Classificação</button>
         </div>
 
         <!-- ===================================
@@ -567,6 +595,8 @@
                 <div class="result-calc-title">📊 CÁLCULO DETALHADO</div>
                 <div id="calculo"></div>
             </div>
+
+            <button class="btn-reset" onclick="resetarFormulario()" style="margin-top: 20px;">🔄 Nova Classificação</button>
         </div>
 
         <!-- ===================================
@@ -824,6 +854,38 @@
             setTimeout(() => {
                 resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 100);
+        }
+
+        // FUNÇÃO PARA RESETAR FORMULÁRIO
+        function resetarFormulario() {
+            // Resetar estado
+            estado.q1 = null;
+            estado.q2 = null;
+            estado.q3 = 'nao';
+            estado.q4 = null;
+            estado.q5 = null;
+            estado.q6 = null;
+
+            // Remover seleção de todos os botões
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Resetar botão "Não" da pergunta 3 como selecionado (padrão)
+            const botaoNaoGemelar = document.querySelector('[data-question="q3"][data-value="nao"]');
+            if (botaoNaoGemelar) {
+                botaoNaoGemelar.classList.add('selected');
+            }
+
+            // Resetar dropdown de exames
+            document.getElementById('q2').value = '';
+
+            // Esconder resultado e alertas
+            document.getElementById('resultado').classList.remove('show');
+            document.getElementById('alertas').classList.remove('show');
+
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
