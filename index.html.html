@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FETALI — Pré-triagem por Fluxograma v2</title>
+  <style>
+    :root {
+      --bg: #f8f5f8;
+      --card: #ffffff;
+      --ink: #31293f;
+      --muted: #756d85;
+      --line: #e8e0ea;
+      --brand: #8a5a8c;
+      --brand-2: #b88aa8;
+      --soft: #f5eef5;
+      --green: #1f7a55;
+      --amber: #a96e12;
+      --red: #b43e4b;
+      --violet: #6d3cc4;
+      --shadow: 0 14px 34px rgba(62, 37, 74, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #fcfbfd 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px 18px 80px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding-bottom: 12px;
+      background: linear-gradient(180deg, rgba(248,245,248,.97), rgba(248,245,248,.88));
+      backdrop-filter: blur(10px);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s ease;
+      font-size: .96rem;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(138, 90, 140, .18);
+    }
+
+    .btn-secondary {
+      background: #f6eef7;
+      color: var(--brand);
+      border: 1px solid #e5d7e8;
+    }
+
+    .btn-copy {
+      background: #eef4ff;
+      color: #28427f;
+      border: 1px solid #d9e6ff;
+    }
+
+    .hero, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(184,138,168,.13), transparent 32%),
+        linear-gradient(135deg, #ffffff 0%, #faf5fa 100%);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .logo-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+      box-shadow: 0 12px 28px rgba(138, 90, 140, .20);
+    }
+
+    .brand-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 0.9rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.75rem, 3vw, 2.45rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.58;
+      max-width: 760px;
+    }
+
+    .card {
+      padding: 22px;
+      margin-bottom: 18px;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .fade-in {
+      animation: fadeSlide .28s ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 1.12rem;
+    }
+
+    .section-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.52;
+      font-size: 0.96rem;
+      max-width: 840px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    @media (min-width: 840px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .option, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fff;
+      color: var(--ink);
+      padding: 14px 15px;
+      font-size: 0.98rem;
+    }
+
+    .option {
+      text-align: left;
+      cursor: pointer;
+      transition: .16s ease;
+      min-height: 58px;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #d7c8dd;
+      box-shadow: 0 8px 18px rgba(82, 46, 96, 0.06);
+    }
+
+    .option.active {
+      border-color: var(--brand);
+      background: #fbf5fb;
+      box-shadow: 0 0 0 3px rgba(138, 90, 140, .11);
+    }
+
+    .flow-box {
+      border: 1px dashed #d8cadb;
+      background: #fcfafc;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .A { background: #e9f7f1; color: var(--green); }
+    .B { background: #fff5e7; color: var(--amber); }
+    .C { background: #fff0f1; color: var(--red); }
+    .CP { background: #f3ecff; color: var(--violet); }
+
+    .result {
+      margin-top: 10px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbf8fc 100%);
+    }
+
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .kpi-label {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+
+    .mini {
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="row">
+        <button class="btn btn-secondary" onclick="resetarTudo()">🔄 Nova pré-triagem</button>
+        <button class="btn btn-primary" onclick="calcularFluxo()">Calcular fluxo</button>
+        <button class="btn btn-copy" onclick="copiarResumo()" id="copyBtn" style="display:none;">📋 Copiar resumo</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="brand-row">
+        <div class="logo-badge">F</div>
+        <div class="brand-meta">
+          <div class="brand-chip">FETALI · Pré-triagem por fluxograma</div>
+          <div class="mini">Layout progressivo, leve e legível para uso rápido em ligação ou recepção.</div>
+        </div>
+      </div>
+      <h1>Pré-triagem assistencial com abertura progressiva</h1>
+      <p class="sub">Os blocos seguintes só aparecem quando a seleção anterior justifica. Isso reduz ruído, melhora a leitura e protege a secretária contra excesso de informação desnecessária.</p>
+    </section>
+
+    <div class="card fade-in">
+      <h2 class="section-title">1. Situação atual</h2>
+      <p class="section-text">Em vez de perguntar se o caso é “urgente”, a secretária identifica sinais concretos de instabilidade.</p>
+      <div class="grid grid-2">
+        <button class="option" data-group="seguranca" data-value="nenhum">Nenhum desses sinais agora</button>
+        <button class="option" data-group="seguranca" data-value="sangramento">🩸 Sangramento vaginal importante</button>
+        <button class="option" data-group="seguranca" data-value="liquido">💧 Perda de líquido pela vagina</button>
+        <button class="option" data-group="seguranca" data-value="contracoes">⏱️ Contrações fortes e frequentes</button>
+        <button class="option" data-group="seguranca" data-value="movimentos">👶 Diminuição importante dos movimentos do bebê</button>
+        <button class="option" data-group="seguranca" data-value="dor">⚠️ Dor intensa ou algo preocupando muito agora</button>
+      </div>
+      <div id="saidaSeguranca" class="flow-box hidden">
+        <span class="badge C">Gate de segurança ativado</span>
+        <div id="textoSeguranca"></div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="blocoAbertura">
+      <h2 class="section-title">2. Porta de entrada do caso</h2>
+      <p class="section-text">Essas perguntas reproduzem o fluxo principal: vínculo com a clínica, rotina ou alteração, exame solicitado e regime de atendimento.</p>
+
+      <div class="grid grid-2">
+        <div>
+          <p><strong>Já acompanha na Fetali?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="vinculo" data-value="seguimento">Já acompanha na Fetali</button>
+            <button class="option" data-group="vinculo" data-value="primeira_vez">Primeira vez na Fetali</button>
+          </div>
+        </div>
+
+        <div>
+          <p><strong>Exame de rotina ou existe alteração / suspeita?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="natureza" data-value="rotina">Rotina</button>
+            <button class="option" data-group="natureza" data-value="duvida">Há dúvida / preocupação / precisa avaliar melhor</button>
+            <button class="option" data-group="natureza" data-value="alteracao">Já existe alteração / achado</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:14px;">
+        <div>
+          <label for="exame"><strong>Exame ou avaliação solicitado</strong></label>
+          <select id="exame">
+            <option value="">Selecione...</option>
+            <option value="gineco">Ginecologia / rotina ginecológica</option>
+            <option value="obstetrico">Ultrassom obstétrico de rotina</option>
+            <option value="morfologico">Morfológico</option>
+            <option value="crescimento">Crescimento / Doppler / seguimento</option>
+            <option value="eco">Ecocardiograma fetal</option>
+            <option value="saude_fetal">Avaliação Especializada da Saúde Fetal</option>
+            <option value="procedimento">Procedimento invasivo / alta complexidade</option>
+          </select>
+        </div>
+
+        <div>
+          <p><strong>Regime de atendimento</strong></p>
+          <div class="grid">
+            <button class="option" data-group="regime" data-value="convenio">Convênio</button>
+            <button class="option" data-group="regime" data-value="particular">Particular</button>
+            <button class="option" data-group="regime" data-value="nao_sabe">Ainda não sabe informar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="blocoComplexidade">
+      <h2 class="section-title">3. Refinadores de complexidade</h2>
+      <p class="section-text">Este bloco só abre quando o caso exige refinamento. Em casos simples, ele permanece oculto para manter a tela leve.</p>
+      <div class="grid grid-2">
+        <div>
+          <p><strong>Seu médico pediu só o exame ou orientou avaliação com especialista em medicina fetal?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="encaminhamento" data-value="so_exame">Pediu só o exame</button>
+            <button class="option" data-group="encaminhamento" data-value="avaliar_melhor">Disse que era melhor avaliar melhor / ver especialista</button>
+            <button class="option" data-group="encaminhamento" data-value="especialista">Encaminhou para especialista em medicina fetal</button>
+          </div>
+        </div>
+
+        <div>
+          <p><strong>É gestação única ou gemelar?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="gemelar" data-value="unica">Única</button>
+            <button class="option" data-group="gemelar" data-value="di">Gemelar dicoriônica / duas placentas</button>
+            <button class="option" data-group="gemelar" data-value="mono">Gemelar monocoriônica / uma placenta</button>
+            <button class="option" data-group="gemelar" data-value="nao_sabe">Gemelar, mas não sabe informar</button>
+          </div>
+        </div>
+
+        <div>
+          <p><strong>Já fez ultrassom nesta gestação? O que te explicaram?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="us_previo" data-value="normal">Não fez / disseram que estava normal</button>
+            <button class="option" data-group="us_previo" data-value="minimizou">Disseram que era algo pequeno, leve ou “não era nada”</button>
+            <button class="option" data-group="us_previo" data-value="alterado">Disseram que havia alteração / problema</button>
+            <button class="option" data-group="us_previo" data-value="nao_soube">Não soube explicar</button>
+          </div>
+        </div>
+
+        <div>
+          <p><strong>Existe algum problema importante da gestação ou da mãe?</strong></p>
+          <div class="grid">
+            <button class="option" data-group="risco" data-value="nao">Não</button>
+            <button class="option" data-group="risco" data-value="sim">Sim</button>
+            <button class="option" data-group="risco" data-value="nao_sabe">Não sabe informar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="resultadoCard">
+      <h2 class="section-title">Resultado do fluxograma</h2>
+      <div class="result">
+        <div class="grid grid-4">
+          <div class="kpi">
+            <div class="kpi-label">Fluxo</div>
+            <div class="kpi-value" id="outFluxo">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Unidade sugerida</div>
+            <div class="kpi-value" id="outUnidade">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Tempo sugerido</div>
+            <div class="kpi-value" id="outTempo">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Regime</div>
+            <div class="kpi-value" id="outRegime">—</div>
+          </div>
+        </div>
+
+        <div class="note" id="outMotivos"></div>
+        <div class="flow-box" id="outScript"></div>
+        <div class="footer-note">O regime convênio/particular ajuda no direcionamento operacional da unidade, sem redefinir sozinho a complexidade clínica.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {};
+
+    const EXAME_BASE = {
+      gineco: 'A',
+      obstetrico: 'B',
+      morfologico: 'B',
+      crescimento: 'B',
+      eco: 'C',
+      saude_fetal: 'C',
+      procedimento: 'CP'
+    };
+
+    const FLOW_DATA = {
+      A: { label: 'A 🟢', time: '15–20 min' },
+      B: { label: 'B 🟡', time: '30–40 min' },
+      C: { label: 'C 🔴', time: '40–60 min' },
+      CP: { label: 'C+ 🟣', time: '60–120 min' }
+    };
+
+    const level = { A: 1, B: 2, C: 3, CP: 4 };
+    const maxFlow = (a, b) => level[a] >= level[b] ? a : b;
+
+    document.querySelectorAll('.option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.group;
+        document.querySelectorAll(`.option[data-group="${group}"]`).forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        state[group] = btn.dataset.value;
+        handleProgressiveUI();
+      });
+    });
+
+    document.getElementById('exame').addEventListener('change', handleProgressiveUI);
+
+    function showBlock(id, show=true) {
+      const el = document.getElementById(id);
+      if (show) {
+        if (el.classList.contains('hidden')) {
+          el.classList.remove('hidden');
+          el.classList.add('fade-in');
+          setTimeout(() => el.classList.remove('fade-in'), 300);
+        }
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function handleProgressiveUI() {
+      const seguranca = state.seguranca;
+      const gateText = document.getElementById('textoSeguranca');
+      showBlock('resultadoCard', false);
+
+      if (!seguranca) {
+        showBlock('blocoAbertura', false);
+        showBlock('blocoComplexidade', false);
+        showBlock('saidaSeguranca', false);
+        return;
+      }
+
+      if (seguranca !== 'nenhum') {
+        showBlock('saidaSeguranca', true);
+        showBlock('blocoAbertura', false);
+        showBlock('blocoComplexidade', false);
+        gateText.innerHTML = '<p><strong>Orientação inicial:</strong> o fluxo de classificação é interrompido. O ideal é orientar avaliação médica imediata pelo caminho assistencial apropriado.</p>';
+        return;
+      }
+
+      showBlock('saidaSeguranca', false);
+      showBlock('blocoAbertura', true);
+
+      const vinculo = state.vinculo;
+      const natureza = state.natureza;
+      const exame = document.getElementById('exame').value;
+      const regime = state.regime;
+
+      if (vinculo && natureza && exame && regime) {
+        if (natureza === 'rotina' && (exame === 'gineco' || exame === 'obstetrico') && vinculo === 'seguimento') {
+          showBlock('blocoComplexidade', false);
+        } else {
+          showBlock('blocoComplexidade', true);
+        }
+      } else {
+        showBlock('blocoComplexidade', false);
+      }
+    }
+
+    function calcularFluxo() {
+      const seguranca = state.seguranca;
+      if (!seguranca) {
+        alert('Selecione primeiro a situação atual.');
+        return;
+      }
+      if (seguranca !== 'nenhum') {
+        alert('Há um sinal clínico atual que interrompe o fluxograma e exige orientação assistencial imediata.');
+        return;
+      }
+
+      const exame = document.getElementById('exame').value;
+      if (!state.vinculo || !state.natureza || !exame || !state.regime) {
+        alert('Preencha os campos essenciais da pré-triagem.');
+        return;
+      }
+
+      let fluxo = EXAME_BASE[exame] || 'B';
+      const motivos = [];
+
+      if (state.vinculo === 'primeira_vez') {
+        fluxo = maxFlow(fluxo, 'B');
+        motivos.push('primeira vez na Fetali');
+      } else {
+        motivos.push('paciente já em seguimento');
+      }
+
+      if (state.natureza === 'duvida') {
+        fluxo = maxFlow(fluxo, 'C');
+        motivos.push('há dúvida ou preocupação clínica');
+      }
+      if (state.natureza === 'alteracao') {
+        fluxo = maxFlow(fluxo, 'C');
+        motivos.push('já existe alteração / achado');
+      }
+
+      const precisaRefino = !document.getElementById('blocoComplexidade').classList.contains('hidden');
+
+      if (precisaRefino) {
+        if (!state.encaminhamento || !state.gemelar || !state.us_previo || !state.risco) {
+          alert('Complete o bloco refinador de complexidade antes de calcular.');
+          return;
+        }
+
+        if (state.encaminhamento === 'avaliar_melhor') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('médico orientou avaliação melhor / especialista');
+        }
+        if (state.encaminhamento === 'especialista') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('encaminhamento explícito para medicina fetal');
+        }
+
+        if (state.gemelar === 'di') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('gestação gemelar dicoriônica');
+        }
+        if (state.gemelar === 'mono') {
+          fluxo = maxFlow(fluxo, 'CP');
+          motivos.push('gestação gemelar monocoriônica');
+        }
+        if (state.gemelar === 'nao_sabe') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('gemelaridade sem definição clara');
+        }
+
+        if (state.us_previo === 'minimizou') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('relato de minimização de achado');
+        }
+        if (state.us_previo === 'alterado') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('ultrassom prévio com alteração referida');
+        }
+        if (state.us_previo === 'nao_soube') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('informação prévia pouco clara');
+        }
+
+        if (state.risco === 'sim') {
+          fluxo = maxFlow(fluxo, 'C');
+          motivos.push('problema materno/gestacional relevante');
+        }
+      }
+
+      if (exame === 'procedimento') {
+        fluxo = 'CP';
+        motivos.push('procedimento / alta complexidade');
+      }
+      if (exame === 'saude_fetal') {
+        fluxo = maxFlow(fluxo, 'C');
+        motivos.push('avaliação especializada da saúde fetal');
+      }
+      if (state.encaminhamento === 'especialista' && state.natureza === 'alteracao') {
+        fluxo = maxFlow(fluxo, 'CP');
+        motivos.push('encaminhamento + alteração já estabelecida');
+      }
+
+      let unidade = 'Vila da Serra preferencial';
+      const regimeLabel = state.regime === 'convenio' ? 'Convênio' : state.regime === 'particular' ? 'Particular' : 'Ainda não informado';
+
+      if (fluxo === 'A') {
+        unidade = state.regime === 'particular' ? 'Vila da Serra ou Santo Agostinho' : 'Vila da Serra preferencial';
+      }
+      if (fluxo === 'B') {
+        unidade = state.regime === 'particular' ? 'Vila da Serra ou Santo Agostinho' : 'Vila da Serra preferencial';
+      }
+      if (fluxo === 'C') {
+        unidade = state.regime === 'particular' ? 'Santo Agostinho preferencial' : 'Avaliar fluxo institucional / especialista';
+      }
+      if (fluxo === 'CP') {
+        unidade = 'Santo Agostinho / fluxo especializado';
+      }
+
+      document.getElementById('outFluxo').textContent = FLOW_DATA[fluxo].label;
+      document.getElementById('outUnidade').textContent = unidade;
+      document.getElementById('outTempo').textContent = FLOW_DATA[fluxo].time;
+      document.getElementById('outRegime').textContent = regimeLabel;
+      document.getElementById('outMotivos').innerHTML = `<strong>Leitura do fluxo:</strong> ${motivos.length ? motivos.join('; ') + '.' : 'sem refinadores adicionais.'}`;
+      document.getElementById('outScript').innerHTML = `<strong>Texto sugerido para a secretária:</strong><p>“Pelo perfil do atendimento, este caso entra como <strong>${FLOW_DATA[fluxo].label}</strong>, com sugestão de <strong>${unidade}</strong> e tempo estimado de <strong>${FLOW_DATA[fluxo].time}</strong>. O regime informado foi <strong>${regimeLabel}</strong>, que ajuda no direcionamento da unidade.”</p>`;
+
+      showBlock('resultadoCard', true);
+      document.getElementById('copyBtn').style.display = 'inline-block';
+      document.getElementById('resultadoCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function copiarResumo() {
+      const fluxo = document.getElementById('outFluxo').textContent;
+      if (fluxo === '—') return;
+      const texto = [
+        `Fluxo: ${document.getElementById('outFluxo').textContent}`,
+        `Unidade sugerida: ${document.getElementById('outUnidade').textContent}`,
+        `Tempo sugerido: ${document.getElementById('outTempo').textContent}`,
+        `Regime: ${document.getElementById('outRegime').textContent}`
+      ].join('\n');
+      navigator.clipboard.writeText(texto).then(() => alert('Resumo copiado.'));
+    }
+
+    function resetarTudo() {
+      Object.keys(state).forEach(k => delete state[k]);
+      document.querySelectorAll('.option').forEach(el => el.classList.remove('active'));
+      document.getElementById('exame').value = '';
+      showBlock('saidaSeguranca', false);
+      showBlock('blocoAbertura', false);
+      showBlock('blocoComplexidade', false);
+      showBlock('resultadoCard', false);
+      document.getElementById('copyBtn').style.display = 'none';
+      document.getElementById('outFluxo').textContent = '—';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
