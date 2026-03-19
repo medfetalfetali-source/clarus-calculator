@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLARUS v3.3 - Classificador por Complexidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #EFF6FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: #4F46E5;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+
+        /* Form */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-group {
+            margin-bottom: 2rem;
+        }
+
+        .question-label {
+            display: block;
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #1F2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .button-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .button-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .option-button {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #D1D5DB;
+            background: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-button:hover {
+            border-color: #9CA3AF;
+        }
+
+        .option-button.selected {
+            background: #E0E7FF;
+            border-color: #4F46E5;
+            color: #312E81;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+
+        .option-button-text {
+            display: block;
+            font-size: 0.875rem;
+        }
+
+        .option-button-points {
+            display: block;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .option-button-points.warning {
+            color: #D97706;
+            font-weight: bold;
+        }
+
+        .option-button-points.danger {
+            color: #DC2626;
+            font-weight: bold;
+        }
+
+        .option-button-full {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #D1D5DB;
+            background: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-button-full:hover {
+            border-color: #9CA3AF;
+        }
+
+        .option-button-full.selected {
+            background: #E0E7FF;
+            border-color: #4F46E5;
+            color: #312E81;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 0.875rem;
+            border: 2px solid #D1D5DB;
+            border-radius: 8px;
+            background: white;
+            color: #1F2937;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+
+        /* Alerts */
+        .alert-box {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-box.show {
+            display: block;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #92400E;
+        }
+
+        .alert-list {
+            list-style: none;
+            color: #78350F;
+            font-size: 0.875rem;
+        }
+
+        .alert-list li {
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Results */
+        .result-container {
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            padding: 2rem;
+            margin-bottom: 1rem;
+            border: 4px solid;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-container.cat-a {
+            background: #F0FDF4;
+            border-color: #10B981;
+            color: #064E3B;
+        }
+
+        .result-container.cat-b {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+            color: #78350F;
+        }
+
+        .result-container.cat-c {
+            background: #FEE2E2;
+            border-color: #EF4444;
+            color: #7F1D1D;
+        }
+
+        .result-container.cat-cp {
+            background: #FAE8FF;
+            border-color: #A855F7;
+            color: #581C87;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-category {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            opacity: 0.75;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .result-card-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.75;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-card-value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .result-detail {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .result-detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.75;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-detail-text {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Legend */
+        .legend {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .legend h3 {
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .legend-item.cat-a {
+            background: #F0FDF4;
+            border-color: #10B981;
+            color: #064E3B;
+        }
+
+        .legend-item.cat-b {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+            color: #78350F;
+        }
+
+        .legend-item.cat-c {
+            background: #FEE2E2;
+            border-color: #EF4444;
+            color: #7F1D1D;
+        }
+
+        .legend-item.cat-cp {
+            background: #FAE8FF;
+            border-color: #A855F7;
+            color: #581C87;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .legend-text {
+            font-size: 0.75rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #6B7280;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .question-label {
+                font-size: 1rem;
+            }
+
+            .result-value {
+                font-size: 2rem;
+            }
+
+            .result-icon {
+                font-size: 2rem;
+            }
+
+            .button-grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.25rem;
+            }
+
+            .option-button {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <svg class="header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <div>
+                <h1>CLARUS v3.3</h1>
+                <p>Classificador por Complexidade Clínica</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="form-container">
+            <!-- Pergunta 1 -->
+            <div class="question-group">
+                <label class="question-label">1️⃣ Já foi atendida aqui na Fetali antes?</label>
+                <div class="button-grid-2">
+                    <button type="button" class="option-button" data-question="q1" data-value="nao">
+                        <span class="option-button-text">SIM, já cliente</span>
+                        <span class="option-button-points">+0 pontos</span>
+                    </button>
+                    <button type="button" class="option-button" data-question="q1" data-value="sim">
+                        <span class="option-button-text">NÃO, primeira vez</span>
+                        <span class="option-button-points warning">+15 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pergunta 2 -->
+            <div class="question-group">
+                <label class="question-label">2️⃣ Qual exame foi solicitado?</label>
+                <select id="q2">
+                    <option value="">Selecione...</option>
+                    <optgroup label="━━ GINECOLOGIA ━━">
+                        <option value="us_tv">US Transvaginal</option>
+                        <option value="us_pelvica">US Pélvica</option>
+                        <option value="us_mama">US Mamas</option>
+                        <option value="folicular">Controle Folicular</option>
+                        <option value="ovulacao">Monitoramento Ovulação</option>
+                        <option value="endometriose">US Endometriose</option>
+                        <option value="diu">Controle DIU</option>
+                    </optgroup>
+                    <optgroup label="━━ OBSTÉTRICA ROTINA ━━">
+                        <option value="tn">Translucência Nucal</option>
+                        <option value="us_1t">US Obstétrico 1º Trimestre</option>
+                        <option value="us_inicial">US Inicial Gravidez</option>
+                        <option value="morfo_2t">Morfológico 2º Trimestre</option>
+                        <option value="morfo_3t">Morfológico 3º Trimestre</option>
+                        <option value="us_3t">US Obstétrico 3º Trimestre</option>
+                        <option value="us_4d">US 4D (Emocional)</option>
+                        <option value="doppler">Doppler Obstétrico</option>
+                        <option value="doppler_umb">Doppler Umbilical</option>
+                        <option value="doppler_uter">Doppler Uterinas</option>
+                        <option value="cervico">US Cervical</option>
+                        <option value="perfil_bio">Perfil Biofísico Fetal</option>
+                    </optgroup>
+                    <optgroup label="━━ MEDICINA FETAL ━━">
+                        <option value="eco">Ecocardiografia Fetal</option>
+                        <option value="eco_completa">Ecocardiografia Completa</option>
+                        <option value="neuro">Neurosonografia</option>
+                        <option value="doppler_cerebral">Doppler Cerebral</option>
+                        <option value="doppler_gemelar">Doppler Gemelar</option>
+                        <option value="doppler_complexo">Doppler Complexo</option>
+                        <option value="crescimento">Restrição Crescimento</option>
+                        <option value="cardiopatia">Cardiopatia (seguimento)</option>
+                        <option value="hidropsia">Hidropsia Fetal</option>
+                        <option value="malformacao">Malformação Fetal</option>
+                    </optgroup>
+                    <optgroup label="━━ ALTA COMPLEXIDADE ━━">
+                        <option value="amnio">Amniocentese</option>
+                        <option value="bvc">BVC</option>
+                        <option value="amniodrenagem">Amniodrenagem</option>
+                        <option value="transfusao">Transfusão Fetal</option>
+                        <option value="laser">Laser TTTS</option>
+                        <option value="aval_esp">Avaliação Especializada</option>
+                        <option value="consulta_fetal">Consulta Medicina Fetal</option>
+                        <option value="aconselhamento">Aconselhamento Genético</option>
+                        <option value="balao_hdc">Balão HDC</option>
+                        <option value="mmcc">Cirurgia Mielomeningocele</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Pergunta 3 -->
+            <div class="question-group">
+                <label class="question-label">3️⃣ É gemelar? Quantas placentas?</label>
+                <div class="button-grid-3">
+                    <button type="button" class="option-button" data-question="q3" data-value="nao">
+                        <span class="option-button-text">❌ Não</span>
+                        <span class="option-button-points">+0</span>
+                    </button>
+                    <button type="button" class="option-button" data-question="q3" data-value="di">
+                        <span class="option-button-text">👶👶 2 plac</span>
+                        <span class="option-button-points warning">+10</span>
+                    </button>
+                    <button type="button" class="option-button" data-question="q3" data-value="mono">
+                        <span class="option-button-text">👶👶 1 plac</span>
+                        <span class="option-button-points danger">+20</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pergunta 4 -->
+            <div class="question-group">
+                <label class="question-label">4️⃣ Foi ENCAMINHADA por outro médico ou especialista?</label>
+                <div class="button-grid-2">
+                    <button type="button" class="option-button" data-question="q4" data-value="nao">
+                        <span class="option-button-text">Não, obstetra normal</span>
+                        <span class="option-button-points">+0 pontos</span>
+                    </button>
+                    <button type="button" class="option-button" data-question="q4" data-value="sim">
+                        <span class="option-button-text">Sim, fui encaminhada</span>
+                        <span class="option-button-points danger">+20 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pergunta 5 -->
+            <div class="question-group">
+                <label class="question-label">5️⃣ Já fez ultrassom antes que mostrou ALGUMA alteração?</label>
+                <button type="button" class="option-button-full" data-question="q5" data-value="nao">
+                    <span class="option-button-text">Não fiz ainda / Fiz e estava normal</span>
+                    <span class="option-button-points">+0 pontos</span>
+                </button>
+                <button type="button" class="option-button-full" data-question="q5" data-value="sim_minimiza">
+                    <span class="option-button-text">Sim, mas é PEQUENO / NÃO É NADA</span>
+                    <span class="option-button-points warning">+10 pontos (minimização detectada!)</span>
+                </button>
+                <button type="button" class="option-button-full" data-question="q5" data-value="sim_confirma">
+                    <span class="option-button-text">Sim, tinha alteração</span>
+                    <span class="option-button-points danger">+15 pontos</span>
+                </button>
+            </div>
+
+            <!-- Pergunta 6 -->
+            <div class="question-group">
+                <label class="question-label">6️⃣ Tem histórico de: diabetes, pressão alta, problema autoimune, trombose?</label>
+                <div class="button-grid-2">
+                    <button type="button" class="option-button" data-question="q6" data-value="nao">
+                        <span class="option-button-text">Não</span>
+                        <span class="option-button-points">+0 pontos</span>
+                    </button>
+                    <button type="button" class="option-button" data-question="q6" data-value="sim">
+                        <span class="option-button-text">Sim</span>
+                        <span class="option-button-points warning">+10 pontos</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div class="alert-box" id="alertBox">
+            <div class="alert-header">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                ALERTAS
+            </div>
+            <ul class="alert-list" id="alertList"></ul>
+        </div>
+
+        <!-- Resultado -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <div class="result-category">
+                    <span class="result-icon" id="resultIcon"></span>
+                    <div>
+                        <div class="result-label">CATEGORIA</div>
+                        <div class="result-value" id="resultCategory"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="result-label">SCORE</div>
+                    <div class="result-value" id="resultScore"></div>
+                </div>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-card">
+                    <div class="result-card-label">UNIDADE</div>
+                    <div class="result-card-value" id="resultUnidade"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">TEMPO</div>
+                    <div class="result-card-value" id="resultTempo"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">EXAME</div>
+                    <div class="result-card-value" id="resultExame"></div>
+                </div>
+            </div>
+
+            <div class="result-detail">
+                <div class="result-detail-label">CÁLCULO DETALHADO</div>
+                <div class="result-detail-text" id="resultCalculo"></div>
+            </div>
+        </div>
+
+        <!-- Legenda -->
+        <div class="legend">
+            <h3>📊 FAIXAS DE CLASSIFICAÇÃO</h3>
+            <div class="legend-grid">
+                <div class="legend-item cat-a">
+                    <div class="legend-title">🟢 A (0-30)</div>
+                    <div class="legend-text">VS | 15-20min</div>
+                </div>
+                <div class="legend-item cat-b">
+                    <div class="legend-title">🟡 B (31-50)</div>
+                    <div class="legend-text">VS/SA | 30-40min</div>
+                </div>
+                <div class="legend-item cat-c">
+                    <div class="legend-title">🔴 C (51-75)</div>
+                    <div class="legend-text">SA pref | 40-60min</div>
+                </div>
+                <div class="legend-item cat-cp">
+                    <div class="legend-title">🟣 C+ (76-100)</div>
+                    <div class="legend-text">SA excl | 60-120min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>CLARUS v3.3</strong> — Classificador por Complexidade Clínica</p>
+            <p>Fetali · Sistema com Detecção Inteligente de Negação/Minimização</p>
+        </div>
+    </div>
+
+    <script>
+        // Base de dados de exames
+        const examesDB = {
+            // Ginecologia
+            'us_tv': { nome: 'US Transvaginal', score: 15, cat: 'A' },
+            'us_pelvica': { nome: 'US Pélvica', score: 15, cat: 'A' },
+            'us_mama': { nome: 'US Mamas', score: 15, cat: 'A' },
+            'folicular': { nome: 'Controle Folicular', score: 12, cat: 'A' },
+            'ovulacao': { nome: 'Monitoramento Ovulação', score: 12, cat: 'A' },
+            'endometriose': { nome: 'US Endometriose', score: 20, cat: 'A' },
+            'diu': { nome: 'Controle DIU', score: 12, cat: 'A' },
+            
+            // Obstétrica Rotina
+            'tn': { nome: 'Translucência Nucal', score: 35, cat: 'B' },
+            'us_1t': { nome: 'US Obstétrico 1º Trimestre', score: 30, cat: 'B' },
+            'us_inicial': { nome: 'US Inicial Gravidez', score: 25, cat: 'B' },
+            'morfo_2t': { nome: 'Morfológico 2º Trimestre', score: 35, cat: 'B' },
+            'morfo_3t': { nome: 'Morfológico 3º Trimestre', score: 35, cat: 'B' },
+            'us_3t': { nome: 'US Obstétrico 3º Trimestre', score: 30, cat: 'B' },
+            'us_4d': { nome: 'US 4D (Emocional)', score: 25, cat: 'B' },
+            'doppler': { nome: 'Doppler Obstétrico', score: 40, cat: 'B' },
+            'doppler_umb': { nome: 'Doppler Umbilical', score: 40, cat: 'B' },
+            'doppler_uter': { nome: 'Doppler Uterinas', score: 40, cat: 'B' },
+            'cervico': { nome: 'US Cervical', score: 30, cat: 'B' },
+            'perfil_bio': { nome: 'Perfil Biofísico Fetal', score: 35, cat: 'B' },
+            
+            // Medicina Fetal
+            'eco': { nome: 'Ecocardiografia Fetal', score: 55, cat: 'C' },
+            'eco_completa': { nome: 'Ecocardiografia Completa', score: 60, cat: 'C' },
+            'neuro': { nome: 'Neurosonografia', score: 60, cat: 'C' },
+            'doppler_cerebral': { nome: 'Doppler Cerebral', score: 55, cat: 'C' },
+            'doppler_gemelar': { nome: 'Doppler Gemelar', score: 55, cat: 'C' },
+            'doppler_complexo': { nome: 'Doppler Complexo', score: 60, cat: 'C' },
+            'crescimento': { nome: 'Restrição Crescimento', score: 55, cat: 'C' },
+            'cardiopatia': { nome: 'Cardiopatia (seguimento)', score: 65, cat: 'C' },
+            'hidropsia': { nome: 'Hidropsia Fetal', score: 60, cat: 'C' },
+            'malformacao': { nome: 'Malformação Fetal', score: 60, cat: 'C' },
+            
+            // Alta Complexidade
+            'amnio': { nome: 'Amniocentese', score: 95, cat: 'C+' },
+            'bvc': { nome: 'BVC', score: 95, cat: 'C+' },
+            'amniodrenagem': { nome: 'Amniodrenagem', score: 95, cat: 'C+' },
+            'transfusao': { nome: 'Transfusão Fetal', score: 100, cat: 'C+' },
+            'laser': { nome: 'Laser TTTS', score: 100, cat: 'C+' },
+            'aval_esp': { nome: 'Avaliação Especializada', score: 90, cat: 'C+' },
+            'consulta_fetal': { nome: 'Consulta Medicina Fetal', score: 85, cat: 'C+' },
+            'aconselhamento': { nome: 'Aconselhamento Genético', score: 85, cat: 'C+' },
+            'balao_hdc': { nome: 'Balão HDC', score: 100, cat: 'C+' },
+            'mmcc': { nome: 'Cirurgia Mielomeningocele', score: 100, cat: 'C+' }
+        };
+
+        // Estado da aplicação
+        const state = {
+            q1: null,
+            q2: null,
+            q3: 'nao',
+            q4: null,
+            q5: null,
+            q6: null
+        };
+
+        // Inicializar event listeners
+        document.querySelectorAll('.option-button, .option-button-full').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const question = this.dataset.question;
+                const value = this.dataset.value;
+                
+                // Remove seleção dos outros botões da mesma pergunta
+                document.querySelectorAll(`[data-question="${question}"]`).forEach(b => {
+                    b.classList.remove('selected');
+                });
+                
+                // Adiciona seleção ao botão clicado
+                this.classList.add('selected');
+                
+                // Atualiza estado
+                state[question] = value;
+                
+                // Recalcula
+                calcular();
+            });
+        });
+
+        document.getElementById('q2').addEventListener('change', function() {
+            state.q2 = this.value;
+            calcular();
+        });
+
+        function calcular() {
+            // Verifica se todas as perguntas foram respondidas
+            if (!state.q1 || !state.q2 || !state.q4 || !state.q5 || !state.q6) {
+                document.getElementById('resultContainer').classList.remove('show');
+                document.getElementById('alertBox').classList.remove('show');
+                return;
+            }
+
+            const exame = examesDB[state.q2];
+            if (!exame) return;
+
+            let scoreTotal = exame.score;
+            let explicacao = [];
+            let alertas = [];
+
+            // 1. Primeira vez
+            if (state.q1 === 'sim') {
+                scoreTotal += 15;
+                explicacao.push('Primeira vez: +15');
+                alertas.push('🆕 PRIMEIRA VEZ na clínica - sem histórico prévio');
+            } else {
+                explicacao.push('Já cliente: +0');
+            }
+
+            // 2. Gemelaridade
+            if (state.q3 === 'di') {
+                scoreTotal += 10;
+                explicacao.push('Gemelar Di: +10');
+                alertas.push('👶👶 Gemelar DICORIÔNICA');
+            } else if (state.q3 === 'mono') {
+                scoreTotal += 20;
+                explicacao.push('Gemelar Mono: +20');
+                alertas.push('🔴 Gemelar MONOCORIÔNICA - sempre C mínimo');
+            } else {
+                explicacao.push('Não gemelar: +0');
+            }
+
+            // 3. Encaminhada
+            if (state.q4 === 'sim') {
+                scoreTotal += 20;
+                explicacao.push('Encaminhada: +20');
+                alertas.push('⚠️ ENCAMINHADA por outro médico - alguém identificou algo');
+            } else {
+                explicacao.push('Obstetra normal: +0');
+            }
+
+            // 4. Achado prévio
+            if (state.q5 === 'sim_minimiza') {
+                scoreTotal += 10;
+                explicacao.push('Minimização detectada: +10');
+                alertas.push('🟡 ATENÇÃO: Paciente minimizou achado ("é pequeno", "não é nada")');
+            } else if (state.q5 === 'sim_confirma') {
+                scoreTotal += 15;
+                explicacao.push('Achado confirmado: +15');
+                alertas.push('🔴 ACHADO PRÉVIO confirmado');
+            } else {
+                explicacao.push('Sem achado prévio: +0');
+            }
+
+            // 5. Histórico
+            if (state.q6 === 'sim') {
+                scoreTotal += 10;
+                explicacao.push('Histórico risco: +10');
+                alertas.push('⚠️ HISTÓRICO de condição de alto risco');
+            } else {
+                explicacao.push('Sem histórico risco: +0');
+            }
+
+            // Determinar categoria
+            let categoria, cor, unidade, tempo, icone;
+
+            if (scoreTotal <= 30) {
+                categoria = 'A';
+                cor = 'cat-a';
+                unidade = 'VS preferencial';
+                tempo = '15-20 min';
+                icone = '🟢';
+            } else if (scoreTotal <= 50) {
+                categoria = 'B';
+                cor = 'cat-b';
+                unidade = 'VS ou SA (ocupação inteligente)';
+                tempo = '30-40 min';
+                icone = '🟡';
+            } else if (scoreTotal <= 75) {
+                categoria = 'C';
+                cor = 'cat-c';
+                unidade = 'SA preferencial';
+                tempo = '40-60 min';
+                icone = '🔴';
+            } else {
+                categoria = 'C+';
+                cor = 'cat-cp';
+                unidade = 'SA EXCLUSIVO (não pode VS)';
+                tempo = '60-120 min';
+                icone = '🟣';
+            }
+
+            // Atualizar UI
+            mostrarResultado(categoria, cor, scoreTotal, icone, unidade, tempo, exame, explicacao, alertas);
+        }
+
+        function mostrarResultado(categoria, cor, score, icone, unidade, tempo, exame, explicacao, alertas) {
+            // Resultado
+            const container = document.getElementById('resultContainer');
+            container.className = `result-container show ${cor}`;
+            
+            document.getElementById('resultIcon').textContent = icone;
+            document.getElementById('resultCategory').textContent = categoria;
+            document.getElementById('resultScore').textContent = score;
+            document.getElementById('resultUnidade').textContent = unidade;
+            document.getElementById('resultTempo').textContent = tempo;
+            document.getElementById('resultExame').textContent = exame.nome;
+            
+            const calculoHTML = `
+                <div>Base (${exame.nome}): ${exame.score} pontos</div>
+                ${explicacao.map(e => `<div>• ${e}</div>`).join('')}
+                <div style="font-weight: bold; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(0,0,0,0.2);">
+                    TOTAL: ${score} pontos → Categoria ${categoria}
+                </div>
+            `;
+            document.getElementById('resultCalculo').innerHTML = calculoHTML;
+
+            // Alertas
+            if (alertas.length > 0) {
+                document.getElementById('alertBox').classList.add('show');
+                document.getElementById('alertList').innerHTML = alertas.map(a => `<li><span>•</span><span>${a}</span></li>`).join('');
+            } else {
+                document.getElementById('alertBox').classList.remove('show');
+            }
+
+            // Scroll suave até resultado
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
