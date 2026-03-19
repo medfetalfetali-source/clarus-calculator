@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLARUS v3.3 - Classificador por Complexidade Clínica</title>
+    
+    <style>
+        /* ===================================
+           RESET E CONFIGURAÇÕES GLOBAIS
+           =================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ===================================
+           HEADER
+           =================================== */
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* ===================================
+           FORMULÁRIO
+           =================================== */
+        .form-box {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* ===================================
+           BOTÕES DE OPÇÃO
+           =================================== */
+        .button-group {
+            display: grid;
+            gap: 10px;
+        }
+
+        .button-group.two-columns {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .button-group.three-columns {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .option-btn {
+            padding: 20px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option-text {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .option-points {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* ===================================
+           SELECT (DROPDOWN)
+           =================================== */
+        .select-box {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* ===================================
+           ALERTAS
+           =================================== */
+        .alerts {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alerts.show {
+            display: block;
+        }
+
+        .alerts h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .alerts ul {
+            list-style: none;
+            color: #856404;
+        }
+
+        .alerts li {
+            padding: 5px 0;
+            font-size: 1rem;
+        }
+
+        /* ===================================
+           RESULTADO
+           =================================== */
+        .result {
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.cat-a {
+            background: #d4edda;
+            border: 5px solid #28a745;
+            color: #155724;
+        }
+
+        .result.cat-b {
+            background: #fff3cd;
+            border: 5px solid #ffc107;
+            color: #856404;
+        }
+
+        .result.cat-c {
+            background: #f8d7da;
+            border: 5px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result.cat-cp {
+            background: #e7d4f5;
+            border: 5px solid #9c27b0;
+            color: #4a148c;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .result-category {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.5);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .result-card-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .result-card-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .result-calc {
+            background: rgba(255,255,255,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.8;
+        }
+
+        .result-calc-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ===================================
+           LEGENDA
+           =================================== */
+        .legend {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .legend h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .legend-item {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 3px solid;
+        }
+
+        .legend-item.cat-a {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .legend-item.cat-b {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .legend-item.cat-c {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .legend-item.cat-cp {
+            background: #e7d4f5;
+            border-color: #9c27b0;
+            color: #4a148c;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+        }
+
+        /* ===================================
+           FOOTER
+           =================================== */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ===================================
+           BOTÃO RESETAR
+           =================================== */
+        .btn-reset {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            transition: all 0.3s;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-reset:active {
+            transform: translateY(0);
+        }
+
+        /* ===================================
+           RESPONSIVO (MOBILE)
+           =================================== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .question-title {
+                font-size: 1.1rem;
+            }
+
+            .button-group.two-columns,
+            .button-group.three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .result-category,
+            .result-score {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- ===================================
+             HEADER
+             =================================== -->
+        <div class="header">
+            <h1>🎯 CLARUS v3.3</h1>
+            <p>Classificador por Complexidade Clínica - Fetali</p>
+            <button class="btn-reset" onclick="resetarFormulario()">🔄 Nova Classificação</button>
+        </div>
+
+        <!-- ===================================
+             FORMULÁRIO
+             =================================== -->
+        <div class="form-box">
+            
+            <!-- PERGUNTA 1 -->
+            <div class="question">
+                <label class="question-title">1️⃣ Já foi atendida aqui na Fetali antes?</label>
+                <div class="button-group two-columns">
+                    <button class="option-btn" onclick="selectOption('q1', 'nao', this)">
+                        <span class="option-text">SIM, já cliente</span>
+                        <span class="option-points">+0 pontos</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q1', 'sim', this)">
+                        <span class="option-text">NÃO, primeira vez</span>
+                        <span class="option-points">+15 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PERGUNTA 2 -->
+            <div class="question">
+                <label class="question-title">2️⃣ Qual exame foi solicitado?</label>
+                <select class="select-box" id="q2" onchange="selectExame(this.value)">
+                    <option value="">Selecione o exame...</option>
+                    <optgroup label="━━━ GINECOLOGIA ━━━">
+                        <option value="us_tv">US Transvaginal</option>
+                        <option value="us_pelvica">US Pélvica</option>
+                        <option value="us_mama">US Mamas</option>
+                        <option value="folicular">Controle Folicular</option>
+                        <option value="ovulacao">Monitoramento Ovulação</option>
+                        <option value="endometriose">US Endometriose</option>
+                        <option value="diu">Controle DIU</option>
+                    </optgroup>
+                    <optgroup label="━━━ OBSTÉTRICA ROTINA ━━━">
+                        <option value="tn">Translucência Nucal</option>
+                        <option value="us_1t">US Obstétrico 1º Trimestre</option>
+                        <option value="us_inicial">US Inicial Gravidez</option>
+                        <option value="morfo_2t">Morfológico 2º Trimestre</option>
+                        <option value="morfo_3t">Morfológico 3º Trimestre</option>
+                        <option value="us_3t">US Obstétrico 3º Trimestre</option>
+                        <option value="us_4d">US 4D (Emocional)</option>
+                        <option value="doppler">Doppler Obstétrico</option>
+                        <option value="doppler_umb">Doppler Umbilical</option>
+                        <option value="doppler_uter">Doppler Uterinas</option>
+                        <option value="cervico">US Cervical</option>
+                        <option value="perfil_bio">Perfil Biofísico Fetal</option>
+                    </optgroup>
+                    <optgroup label="━━━ MEDICINA FETAL ━━━">
+                        <option value="eco">Ecocardiografia Fetal</option>
+                        <option value="eco_completa">Ecocardiografia Completa</option>
+                        <option value="neuro">Neurosonografia</option>
+                        <option value="doppler_cerebral">Doppler Cerebral</option>
+                        <option value="doppler_gemelar">Doppler Gemelar</option>
+                        <option value="doppler_complexo">Doppler Complexo</option>
+                        <option value="crescimento">Restrição Crescimento</option>
+                        <option value="cardiopatia">Cardiopatia (seguimento)</option>
+                        <option value="hidropsia">Hidropsia Fetal</option>
+                        <option value="malformacao">Malformação Fetal</option>
+                    </optgroup>
+                    <optgroup label="━━━ ALTA COMPLEXIDADE ━━━">
+                        <option value="amnio">Amniocentese</option>
+                        <option value="bvc">BVC</option>
+                        <option value="amniodrenagem">Amniodrenagem</option>
+                        <option value="transfusao">Transfusão Fetal</option>
+                        <option value="laser">Laser TTTS</option>
+                        <option value="aval_esp">Avaliação Especializada</option>
+                        <option value="consulta_fetal">Consulta Medicina Fetal</option>
+                        <option value="aconselhamento">Aconselhamento Genético</option>
+                        <option value="balao_hdc">Balão HDC</option>
+                        <option value="mmcc">Cirurgia Mielomeningocele</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- PERGUNTA 3 -->
+            <div class="question">
+                <label class="question-title">3️⃣ É gemelar? Quantas placentas?</label>
+                <div class="button-group three-columns">
+                    <button class="option-btn selected" onclick="selectOption('q3', 'nao', this)">
+                        <span class="option-text">❌ Não</span>
+                        <span class="option-points">+0</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q3', 'di', this)">
+                        <span class="option-text">👶👶 2 plac</span>
+                        <span class="option-points">+10</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q3', 'mono', this)">
+                        <span class="option-text">👶👶 1 plac</span>
+                        <span class="option-points">+20</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PERGUNTA 4 -->
+            <div class="question">
+                <label class="question-title">4️⃣ Foi ENCAMINHADA por outro médico ou especialista?</label>
+                <div class="button-group two-columns">
+                    <button class="option-btn" onclick="selectOption('q4', 'nao', this)">
+                        <span class="option-text">Não, obstetra normal</span>
+                        <span class="option-points">+0 pontos</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q4', 'sim', this)">
+                        <span class="option-text">Sim, fui encaminhada</span>
+                        <span class="option-points">+20 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PERGUNTA 5 -->
+            <div class="question">
+                <label class="question-title">5️⃣ Já fez ultrassom antes que mostrou ALGUMA alteração?</label>
+                <div class="button-group">
+                    <button class="option-btn" onclick="selectOption('q5', 'nao', this)">
+                        <span class="option-text">Não fiz ainda / Fiz e estava normal</span>
+                        <span class="option-points">+0 pontos</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q5', 'sim_minimiza', this)">
+                        <span class="option-text">Sim, mas é PEQUENO / NÃO É NADA</span>
+                        <span class="option-points">+10 pontos (minimização detectada!)</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q5', 'sim_confirma', this)">
+                        <span class="option-text">Sim, tinha alteração</span>
+                        <span class="option-points">+15 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PERGUNTA 6 -->
+            <div class="question">
+                <label class="question-title">6️⃣ Tem histórico de: diabetes, pressão alta, problema autoimune, trombose?</label>
+                <div class="button-group two-columns">
+                    <button class="option-btn" onclick="selectOption('q6', 'nao', this)">
+                        <span class="option-text">Não</span>
+                        <span class="option-points">+0 pontos</span>
+                    </button>
+                    <button class="option-btn" onclick="selectOption('q6', 'sim', this)">
+                        <span class="option-text">Sim</span>
+                        <span class="option-points">+10 pontos</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===================================
+             ALERTAS
+             =================================== -->
+        <div class="alerts" id="alertas">
+            <h3>⚠️ ALERTAS DETECTADOS</h3>
+            <ul id="lista-alertas"></ul>
+        </div>
+
+        <!-- ===================================
+             RESULTADO
+             =================================== -->
+        <div class="result" id="resultado">
+            <div class="result-header">
+                <div>
+                    <div style="opacity: 0.7; font-size: 1rem; margin-bottom: 5px;">CATEGORIA</div>
+                    <div class="result-category" id="categoria"></div>
+                </div>
+                <div>
+                    <div style="opacity: 0.7; font-size: 1rem; margin-bottom: 5px;">SCORE</div>
+                    <div class="result-score" id="score"></div>
+                </div>
+            </div>
+
+            <div class="result-details">
+                <div class="result-card">
+                    <div class="result-card-label">🏥 UNIDADE</div>
+                    <div class="result-card-value" id="unidade"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">⏱️ TEMPO</div>
+                    <div class="result-card-value" id="tempo"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">📋 EXAME</div>
+                    <div class="result-card-value" id="exame"></div>
+                </div>
+            </div>
+
+            <div class="result-calc">
+                <div class="result-calc-title">📊 CÁLCULO DETALHADO</div>
+                <div id="calculo"></div>
+            </div>
+
+            <button class="btn-reset" onclick="resetarFormulario()" style="margin-top: 20px;">🔄 Nova Classificação</button>
+        </div>
+
+        <!-- ===================================
+             LEGENDA
+             =================================== -->
+        <div class="legend">
+            <h3>📊 FAIXAS DE CLASSIFICAÇÃO</h3>
+            <div class="legend-grid">
+                <div class="legend-item cat-a">
+                    <div class="legend-title">🟢 A (0-30)</div>
+                    <div class="legend-text">VS | 15-20min</div>
+                </div>
+                <div class="legend-item cat-b">
+                    <div class="legend-title">🟡 B (31-50)</div>
+                    <div class="legend-text">VS/SA | 30-40min</div>
+                </div>
+                <div class="legend-item cat-c">
+                    <div class="legend-title">🔴 C (51-75)</div>
+                    <div class="legend-text">SA pref | 40-60min</div>
+                </div>
+                <div class="legend-item cat-cp">
+                    <div class="legend-title">🟣 C+ (76-100)</div>
+                    <div class="legend-text">SA excl | 60-120min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================
+             FOOTER
+             =================================== -->
+        <div class="footer">
+            <p><strong>CLARUS v3.3</strong> — Classificador por Complexidade Clínica</p>
+            <p>Fetali · Sistema com Detecção Inteligente de Negação/Minimização</p>
+        </div>
+
+    </div>
+
+    <!-- ===================================
+         JAVASCRIPT
+         =================================== -->
+    <script>
+        // BASE DE DADOS DE EXAMES
+        const exames = {
+            // Ginecologia
+            'us_tv': { nome: 'US Transvaginal', score: 15 },
+            'us_pelvica': { nome: 'US Pélvica', score: 15 },
+            'us_mama': { nome: 'US Mamas', score: 15 },
+            'folicular': { nome: 'Controle Folicular', score: 12 },
+            'ovulacao': { nome: 'Monitoramento Ovulação', score: 12 },
+            'endometriose': { nome: 'US Endometriose', score: 20 },
+            'diu': { nome: 'Controle DIU', score: 12 },
+            
+            // Obstétrica Rotina
+            'tn': { nome: 'Translucência Nucal', score: 35 },
+            'us_1t': { nome: 'US Obstétrico 1º Trimestre', score: 30 },
+            'us_inicial': { nome: 'US Inicial Gravidez', score: 25 },
+            'morfo_2t': { nome: 'Morfológico 2º Trimestre', score: 35 },
+            'morfo_3t': { nome: 'Morfológico 3º Trimestre', score: 35 },
+            'us_3t': { nome: 'US Obstétrico 3º Trimestre', score: 30 },
+            'us_4d': { nome: 'US 4D (Emocional)', score: 25 },
+            'doppler': { nome: 'Doppler Obstétrico', score: 40 },
+            'doppler_umb': { nome: 'Doppler Umbilical', score: 40 },
+            'doppler_uter': { nome: 'Doppler Uterinas', score: 40 },
+            'cervico': { nome: 'US Cervical', score: 30 },
+            'perfil_bio': { nome: 'Perfil Biofísico Fetal', score: 35 },
+            
+            // Medicina Fetal
+            'eco': { nome: 'Ecocardiografia Fetal', score: 55 },
+            'eco_completa': { nome: 'Ecocardiografia Completa', score: 60 },
+            'neuro': { nome: 'Neurosonografia', score: 60 },
+            'doppler_cerebral': { nome: 'Doppler Cerebral', score: 55 },
+            'doppler_gemelar': { nome: 'Doppler Gemelar', score: 55 },
+            'doppler_complexo': { nome: 'Doppler Complexo', score: 60 },
+            'crescimento': { nome: 'Restrição Crescimento', score: 55 },
+            'cardiopatia': { nome: 'Cardiopatia (seguimento)', score: 65 },
+            'hidropsia': { nome: 'Hidropsia Fetal', score: 60 },
+            'malformacao': { nome: 'Malformação Fetal', score: 60 },
+            
+            // Alta Complexidade
+            'amnio': { nome: 'Amniocentese', score: 95 },
+            'bvc': { nome: 'BVC', score: 95 },
+            'amniodrenagem': { nome: 'Amniodrenagem', score: 95 },
+            'transfusao': { nome: 'Transfusão Fetal', score: 100 },
+            'laser': { nome: 'Laser TTTS', score: 100 },
+            'aval_esp': { nome: 'Avaliação Especializada', score: 90 },
+            'consulta_fetal': { nome: 'Consulta Medicina Fetal', score: 85 },
+            'aconselhamento': { nome: 'Aconselhamento Genético', score: 85 },
+            'balao_hdc': { nome: 'Balão HDC', score: 100 },
+            'mmcc': { nome: 'Cirurgia Mielomeningocele', score: 100 }
+        };
+
+        // ESTADO DA APLICAÇÃO
+        const estado = {
+            q1: null,
+            q2: null,
+            q3: 'nao',
+            q4: null,
+            q5: null,
+            q6: null
+        };
+
+        // FUNÇÃO PARA SELECIONAR OPÇÃO
+        function selectOption(pergunta, valor, botao) {
+            // Remove seleção de todos os botões da mesma pergunta
+            const botoes = botao.parentElement.querySelectorAll('.option-btn');
+            botoes.forEach(b => b.classList.remove('selected'));
+            
+            // Adiciona seleção ao botão clicado
+            botao.classList.add('selected');
+            
+            // Atualiza estado
+            estado[pergunta] = valor;
+            
+            // Recalcula
+            calcular();
+        }
+
+        // FUNÇÃO PARA SELECIONAR EXAME
+        function selectExame(valor) {
+            estado.q2 = valor;
+            calcular();
+        }
+
+        // FUNÇÃO PRINCIPAL DE CÁLCULO
+        function calcular() {
+            // Verifica se todas perguntas foram respondidas
+            if (!estado.q1 || !estado.q2 || !estado.q4 || !estado.q5 || !estado.q6) {
+                document.getElementById('resultado').classList.remove('show');
+                document.getElementById('alertas').classList.remove('show');
+                return;
+            }
+
+            const exame = exames[estado.q2];
+            if (!exame) return;
+
+            let scoreTotal = exame.score;
+            let explicacao = [];
+            let alertas = [];
+
+            // 1. PRIMEIRA VEZ
+            if (estado.q1 === 'sim') {
+                scoreTotal += 15;
+                explicacao.push('Primeira vez: +15');
+                alertas.push('🆕 PRIMEIRA VEZ na clínica - sem histórico prévio');
+            } else {
+                explicacao.push('Já cliente: +0');
+            }
+
+            // 2. GEMELARIDADE
+            if (estado.q3 === 'di') {
+                scoreTotal += 10;
+                explicacao.push('Gemelar Di: +10');
+                alertas.push('👶👶 Gemelar DICORIÔNICA');
+            } else if (estado.q3 === 'mono') {
+                scoreTotal += 20;
+                explicacao.push('Gemelar Mono: +20');
+                alertas.push('🔴 Gemelar MONOCORIÔNICA - sempre C mínimo');
+            } else {
+                explicacao.push('Não gemelar: +0');
+            }
+
+            // 3. ENCAMINHADA
+            if (estado.q4 === 'sim') {
+                scoreTotal += 20;
+                explicacao.push('Encaminhada: +20');
+                alertas.push('⚠️ ENCAMINHADA por outro médico - alguém identificou algo');
+            } else {
+                explicacao.push('Obstetra normal: +0');
+            }
+
+            // 4. ACHADO PRÉVIO
+            if (estado.q5 === 'sim_minimiza') {
+                scoreTotal += 10;
+                explicacao.push('Minimização detectada: +10');
+                alertas.push('🟡 ATENÇÃO: Paciente minimizou achado ("é pequeno", "não é nada")');
+            } else if (estado.q5 === 'sim_confirma') {
+                scoreTotal += 15;
+                explicacao.push('Achado confirmado: +15');
+                alertas.push('🔴 ACHADO PRÉVIO confirmado');
+            } else {
+                explicacao.push('Sem achado prévio: +0');
+            }
+
+            // 5. HISTÓRICO
+            if (estado.q6 === 'sim') {
+                scoreTotal += 10;
+                explicacao.push('Histórico risco: +10');
+                alertas.push('⚠️ HISTÓRICO de condição de alto risco');
+            } else {
+                explicacao.push('Sem histórico risco: +0');
+            }
+
+            // DETERMINAR CATEGORIA
+            let categoria, classeCSS, unidade, tempo;
+
+            if (scoreTotal <= 30) {
+                categoria = 'A';
+                classeCSS = 'cat-a';
+                unidade = 'VS preferencial';
+                tempo = '15-20 min';
+            } else if (scoreTotal <= 50) {
+                categoria = 'B';
+                classeCSS = 'cat-b';
+                unidade = 'VS ou SA';
+                tempo = '30-40 min';
+            } else if (scoreTotal <= 75) {
+                categoria = 'C';
+                classeCSS = 'cat-c';
+                unidade = 'SA preferencial';
+                tempo = '40-60 min';
+            } else {
+                categoria = 'C+';
+                classeCSS = 'cat-cp';
+                unidade = 'SA EXCLUSIVO';
+                tempo = '60-120 min';
+            }
+
+            // EXIBIR RESULTADO
+            mostrarResultado(categoria, classeCSS, scoreTotal, unidade, tempo, exame, explicacao, alertas);
+        }
+
+        // FUNÇÃO PARA MOSTRAR RESULTADO
+        function mostrarResultado(categoria, classeCSS, score, unidade, tempo, exame, explicacao, alertas) {
+            // Atualizar resultado
+            const resultado = document.getElementById('resultado');
+            resultado.className = 'result show ' + classeCSS;
+            
+            document.getElementById('categoria').textContent = categoria;
+            document.getElementById('score').textContent = score;
+            document.getElementById('unidade').textContent = unidade;
+            document.getElementById('tempo').textContent = tempo;
+            document.getElementById('exame').textContent = exame.nome;
+            
+            // Cálculo detalhado
+            let calculoHTML = `<div>Base (${exame.nome}): ${exame.score} pontos</div>`;
+            explicacao.forEach(e => {
+                calculoHTML += `<div>• ${e}</div>`;
+            });
+            calculoHTML += `<div style="font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.2);">TOTAL: ${score} pontos → Categoria ${categoria}</div>`;
+            document.getElementById('calculo').innerHTML = calculoHTML;
+
+            // Alertas
+            if (alertas.length > 0) {
+                document.getElementById('alertas').classList.add('show');
+                let alertasHTML = '';
+                alertas.forEach(a => {
+                    alertasHTML += `<li>• ${a}</li>`;
+                });
+                document.getElementById('lista-alertas').innerHTML = alertasHTML;
+            } else {
+                document.getElementById('alertas').classList.remove('show');
+            }
+
+            // Scroll suave
+            setTimeout(() => {
+                resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // FUNÇÃO PARA RESETAR FORMULÁRIO
+        function resetarFormulario() {
+            // Resetar estado
+            estado.q1 = null;
+            estado.q2 = null;
+            estado.q3 = 'nao';
+            estado.q4 = null;
+            estado.q5 = null;
+            estado.q6 = null;
+
+            // Remover seleção de todos os botões
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Resetar botão "Não" da pergunta 3 como selecionado (padrão)
+            const botaoNaoGemelar = document.querySelector('[data-question="q3"][data-value="nao"]');
+            if (botaoNaoGemelar) {
+                botaoNaoGemelar.classList.add('selected');
+            }
+
+            // Resetar dropdown de exames
+            document.getElementById('q2').value = '';
+
+            // Esconder resultado e alertas
+            document.getElementById('resultado').classList.remove('show');
+            document.getElementById('alertas').classList.remove('show');
+
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
