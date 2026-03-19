@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLARUS Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .question {
+            margin: 10px 0;
+        }
+        .buttons {
+            text-align: center;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+        }
+        .result {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CLARUS Calculator</h1>
+    <div id="calculator">
+        <div class="question" id="question1">
+            <p>1. Question 1: (Add question text here)</p>
+            <button onclick="answerQuestion(1, 'A')">A</button>
+            <button onclick="answerQuestion(1, 'B')">B</button>
+            <button onclick="answerQuestion(1, 'C')">C</button>
+        </div>
+        <div class="question" id="question2">
+            <p>2. Question 2: (Add question text here)</p>
+            <button onclick="answerQuestion(2, 'A')">A</button>
+            <button onclick="answerQuestion(2, 'B')">B</button>
+            <button onclick="answerQuestion(2, 'C')">C</button>
+        </div>
+        <div class="question" id="question3">
+            <p>3. Question 3: (Add question text here)</p>
+            <button onclick="answerQuestion(3, 'A')">A</button>
+            <button onclick="answerQuestion(3, 'B')">B</button>
+            <button onclick="answerQuestion(3, 'C')">C</button>
+        </div>
+        <div class="question" id="question4">
+            <p>4. Question 4: (Add question text here)</p>
+            <button onclick="answerQuestion(4, 'A')">A</button>
+            <button onclick="answerQuestion(4, 'B')">B</button>
+            <button onclick="answerQuestion(4, 'C')">C</button>
+        </div>
+        <div class="question" id="question5">
+            <p>5. Question 5: (Add question text here)</p>
+            <button onclick="answerQuestion(5, 'A')">A</button>
+            <button onclick="answerQuestion(5, 'B')">B</button>
+            <button onclick="answerQuestion(5, 'C')">C</button>
+        </div>
+        <div class="question" id="question6">
+            <p>6. Question 6: (Add question text here)</p>
+            <button onclick="answerQuestion(6, 'A')">A</button>
+            <button onclick="answerQuestion(6, 'B')">B</button>
+            <button onclick="answerQuestion(6, 'C')">C</button>
+        </div>
+        <div class="buttons">
+            <button onclick="calculateScore()">Calculate Score</button>
+        </div>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        let answers = {};
+
+        function answerQuestion(question, answer) {
+            answers[question] = answer;
+            document.getElementById(`question${question}`).style.display = 'none';
+            if (question < 6) {
+                document.getElementById(`question${question + 1}`).style.display = 'block';
+            } else {
+                document.querySelector('.buttons').style.display = 'block';
+            }
+        }
+
+        function calculateScore() {
+            let score = 0;
+            for (let i = 1; i <= 6; i++) {
+                score += answers[i] === 'A' ? 3 : answers[i] === 'B' ? 2 : 1;
+            }
+
+            let classification;
+            if (score <= 6) classification = 'C';
+            else if (score <= 12) classification = 'C+';
+            else if (score <= 18) classification = 'B';
+            else classification = 'A';
+
+            document.getElementById('result').innerText = `Your score: ${score}, Classification: ${classification}`;
+        }
+
+        // Initialize the first question
+        document.getElementById('question1').style.display = 'block';
+    </script>
+</body>
+</html>
