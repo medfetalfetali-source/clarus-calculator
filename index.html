@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FETALI — Pré-triagem por Fluxograma v9</title>
+  <title>FETALI — Pré-triagem por Fluxograma v10</title>
   <style>
     :root {
       --bg:#f6f7fb; --card:#fff; --ink:#1f2a44; --muted:#5f6b85; --line:#e3e8f2;
@@ -13,7 +13,7 @@
     }
     *{box-sizing:border-box} html{scroll-behavior:smooth}
     body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#fbfcff 0%,var(--bg) 100%);color:var(--ink)}
-    .wrap{max-width:1140px;margin:0 auto;padding:24px 18px 80px}
+    .wrap{max-width:1160px;margin:0 auto;padding:24px 18px 80px}
     .topbar{position:sticky;top:0;z-index:50;padding-bottom:12px;background:linear-gradient(180deg,rgba(246,247,251,.97),rgba(246,247,251,.88));backdrop-filter:blur(10px)}
     .row{display:flex;gap:10px;flex-wrap:wrap}
     .btn{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;transition:.18s ease;font-size:.96rem}
@@ -31,7 +31,7 @@
     .brand-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--soft);color:var(--brand);font-size:.9rem;font-weight:700;width:fit-content}
     .brand-meta{display:flex;flex-direction:column;gap:4px}
     h1{margin:0 0 8px;font-size:clamp(1.75rem,3vw,2.45rem);line-height:1.08;letter-spacing:-.02em}
-    .sub{margin:0;color:var(--muted);font-size:1rem;line-height:1.58;max-width:760px}
+    .sub{margin:0;color:var(--muted);font-size:1rem;line-height:1.58;max-width:780px}
     .mini{font-size:.9rem;color:var(--muted)}
     .mini strong{color:var(--ink)}
     .hero-side{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.86);padding:18px}
@@ -45,7 +45,7 @@
     .hidden{display:none}.fade-in{animation:fadeSlide .28s ease}
     @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     .section-title{margin:0 0 8px;font-size:1.12rem}
-    .section-text{margin:0 0 14px;color:var(--muted);line-height:1.52;font-size:.96rem;max-width:860px}
+    .section-text{margin:0 0 14px;color:var(--muted);line-height:1.52;font-size:.96rem;max-width:880px}
     .grid{display:grid;gap:12px}
     @media (min-width:840px){.grid-2{grid-template-columns:1fr 1fr}.grid-4{grid-template-columns:repeat(4,1fr)}}
     .option{text-align:left;cursor:pointer;transition:.16s ease;min-height:58px}
@@ -90,7 +90,7 @@
           </div>
         </div>
         <h1>Pré-triagem assistencial</h1>
-        <p class="sub">Versão completa com lógica de escalonamento composto. Exames como Doppler, Perfil Biofísico e Crescimento permanecem base A, mas sobem rapidamente quando aparecem sinais contextuais de maior carga cognitiva.</p>
+        <p class="sub">Motor V10: o exame define um piso técnico, a história define a complexidade do caso, e o fluxo final acompanha a maior dessas duas camadas. O objetivo é reduzir subclassificação, especialmente nos exames “aparentemente simples” com contexto clínico relevante.</p>
       </div>
 
       <div class="hero-side">
@@ -187,12 +187,12 @@
               <option value="us_obstetrico_inicial">US obstétrico inicial</option>
               <option value="vitalidade_fetal">Vitalidade fetal</option>
               <option value="verificacao_clinica">Verificação clínica</option>
-              <option value="morfologico_1t">Morfológico 1º trimestre / TN</option>
               <option value="doppler_obstetrico">Doppler obstétrico</option>
               <option value="perfil_biofisico">Perfil biofísico</option>
               <option value="crescimento_fetal">Crescimento fetal</option>
             </optgroup>
             <optgroup label="Obstetrícia — B — 30–40 min">
+              <option value="morfologico_1t">Morfológico 1º trimestre / TN</option>
               <option value="morfologico_2t">Morfológico 2º trimestre</option>
               <option value="morfologico_3t">Morfológico 3º trimestre</option>
               <option value="gemelar_dicorionica">Gemelar dicoriônica</option>
@@ -312,31 +312,37 @@
     pesquisa_endometriose:{flow:'A',time:'15–20 min',label:'Pesquisa de endometriose',rule:'A'},
     mioma_uterino:{flow:'A',time:'15–20 min',label:'Mioma uterino',rule:'A'},
     us_mamaria:{flow:'A',time:'15–20 min',label:'US mamária',rule:'A'},
+
     us_obstetrico_inicial:{flow:'A',time:'15–20 min',label:'US obstétrico inicial',rule:'A'},
     vitalidade_fetal:{flow:'A',time:'15–20 min',label:'Vitalidade fetal',rule:'A',window:'37–39s'},
     verificacao_clinica:{flow:'A',time:'15–20 min',label:'Verificação clínica',rule:'A'},
-    morfologico_1t:{flow:'A',time:'15–20 min',label:'Morfológico 1º trimestre / TN',rule:'A',window:'11–13s6d'},
     doppler_obstetrico:{flow:'A',time:'15–20 min',label:'Doppler obstétrico',rule:'A'},
     perfil_biofisico:{flow:'A',time:'15–20 min',label:'Perfil biofísico',rule:'A'},
     crescimento_fetal:{flow:'A',time:'15–20 min',label:'Crescimento fetal',rule:'A'},
+
+    morfologico_1t:{flow:'B',time:'30–40 min',label:'Morfológico 1º trimestre / TN',rule:'B',window:'11–13s6d'},
     morfologico_2t:{flow:'B',time:'30–40 min',label:'Morfológico 2º trimestre',rule:'B',window:'20–24s'},
     morfologico_3t:{flow:'B',time:'30–40 min',label:'Morfológico 3º trimestre',rule:'B',window:'32–36s'},
     gemelar_dicorionica:{flow:'B',time:'30–40 min',label:'Gemelar dicoriônica',rule:'B'},
     ecocardiografia_fetal:{flow:'B',time:'30–40 min',label:'Ecocardiografia fetal',rule:'B',window:'24–28s'},
+
     gemelar_monocorionica:{flow:'C',time:'40–60 min',label:'Gemelar monocoriônica',rule:'C'},
     suspeita_malformacao:{flow:'C',time:'40–60 min',label:'Suspeita de malformação',rule:'C'},
     neurosonografia:{flow:'C',time:'40–60 min',label:'Neurosonografia',rule:'C'},
     avaliacao_saude_fetal:{flow:'C',time:'40–60 min',label:'Avaliação Especializada da Saúde Fetal',rule:'CEX'},
+
     amniocentese:{flow:'CP',time:'60–120 min',label:'Amniocentese',rule:'CP'},
     bvc:{flow:'CP',time:'60–120 min',label:'BVC — biópsia de vilo corial',rule:'CP'},
     encaminhamento_cirurgia_fetal:{flow:'CP',time:'60–120 min',label:'Encaminhamento cirurgia fetal',rule:'CP'}
   };
+
   const FLOW_DATA = {
     A:{label:'A 🟢',time:'15–20 min'},
     B:{label:'B 🟡',time:'30–40 min'},
     C:{label:'C 🔴',time:'40–60 min'},
     CP:{label:'C+ 🟣',time:'60–120 min'}
   };
+
   const level = {A:1,B:2,C:3,CP:4};
   const maxFlow = (a,b)=> level[a] >= level[b] ? a : b;
 
@@ -353,7 +359,9 @@
   ];
 
   function profissionaisCompativeis(nivelNecessario){
-    return profissionais.filter(p => level[p.nivel] >= level[nivelNecessario]).map(p => `${p.nome} (${p.nivel === 'CP' ? 'C+' : p.nivel})`);
+    return profissionais
+      .filter(p => level[p.nivel] >= level[nivelNecessario])
+      .map(p => `${p.nome} (${p.nivel === 'CP' ? 'C+' : p.nivel})`);
   }
 
   function todayISO(){
@@ -380,7 +388,9 @@
         el.classList.add('fade-in');
         setTimeout(()=>el.classList.remove('fade-in'),300);
       }
-    } else el.classList.add('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
   }
 
   function handleProgressiveUI(){
@@ -434,6 +444,129 @@
     return ['doppler_obstetrico','perfil_biofisico','crescimento_fetal'].includes(exameKey);
   }
 
+  function computeCaseScore(exameKey){
+    let score = 0;
+    const reasons = [];
+
+    if(state.vinculo === 'primeira_vez'){
+      score += 1;
+      reasons.push('primeira vez na Fetali');
+    } else {
+      reasons.push('paciente já em seguimento');
+    }
+
+    if(state.natureza === 'duvida'){
+      score += 2;
+      reasons.push('há dúvida ou preocupação clínica');
+    }
+    if(state.natureza === 'alteracao'){
+      score += 3;
+      reasons.push('já existe alteração / achado');
+    }
+
+    const needsRefine = !document.getElementById('blocoComplexidade').classList.contains('hidden');
+    if(needsRefine){
+      if(state.encaminhamento === 'avaliar_melhor'){
+        score += 3;
+        reasons.push('médico orientou avaliação melhor / especialista');
+      }
+      if(state.encaminhamento === 'especialista'){
+        score += 4;
+        reasons.push('encaminhamento explícito para medicina fetal');
+      }
+
+      if(state.gemelar === 'di'){
+        score += 2;
+        reasons.push('gestação gemelar dicoriônica');
+      }
+      if(state.gemelar === 'mono'){
+        score += 5;
+        reasons.push('gestação gemelar monocoriônica');
+      }
+      if(state.gemelar === 'nao_sabe'){
+        score += 2;
+        reasons.push('gemelaridade sem definição clara');
+      }
+
+      if(state.us_previo === 'minimizou'){
+        score += 2;
+        reasons.push('relato de minimização de achado');
+      }
+      if(state.us_previo === 'alterado'){
+        score += 3;
+        reasons.push('ultrassom prévio com alteração referida');
+      }
+      if(state.us_previo === 'nao_soube'){
+        score += 1;
+        reasons.push('informação prévia pouco clara');
+      }
+
+      if(state.risco === 'sim'){
+        score += 2;
+        reasons.push('problema materno/gestacional relevante');
+      }
+
+      if(state.senioridade === 'senior'){
+        score += 2;
+        reasons.push('pedido / orientação para profissional mais experiente');
+      }
+    }
+
+    if(isSoftAExam(exameKey)){
+      const flags = [
+        state.vinculo === 'primeira_vez',
+        state.natureza === 'duvida',
+        state.natureza === 'alteracao',
+        state.encaminhamento === 'avaliar_melhor',
+        state.encaminhamento === 'especialista',
+        state.us_previo === 'minimizou',
+        state.us_previo === 'alterado',
+        state.us_previo === 'nao_soube',
+        state.risco === 'sim',
+        state.gemelar === 'di' || state.gemelar === 'mono' || state.gemelar === 'nao_sabe',
+        state.senioridade === 'senior'
+      ];
+      const cluster = flags.filter(Boolean).length;
+
+      if(cluster >= 1){
+        score = Math.max(score, 3);
+        reasons.push('exame-base A com agravante relevante');
+      }
+      if(cluster >= 2){
+        score = Math.max(score, 6);
+        reasons.push('cluster de incerteza em exame-base A');
+      }
+
+      if(
+        (state.encaminhamento === 'especialista' && (state.us_previo === 'alterado' || state.us_previo === 'minimizou')) ||
+        (state.vinculo === 'primeira_vez' && state.natureza === 'alteracao' && (state.us_previo === 'alterado' || state.us_previo === 'minimizou')) ||
+        (state.senioridade === 'senior' && (state.natureza === 'alteracao' || state.us_previo === 'alterado'))
+      ){
+        score = Math.max(score, 7);
+        reasons.push('combinação forte de contexto em exame-base A');
+      }
+    }
+
+    if(state.encaminhamento === 'especialista' && state.natureza === 'alteracao'){
+      score = Math.max(score, 8);
+      reasons.push('encaminhamento + alteração já estabelecida');
+    }
+
+    if(state.gemelar === 'mono'){
+      score = Math.max(score, 8);
+      reasons.push('gemelar monocoriônica exige escalonamento forte');
+    }
+
+    return { score, reasons };
+  }
+
+  function scoreToFlow(score){
+    if(score <= 1) return 'A';
+    if(score <= 4) return 'B';
+    if(score <= 7) return 'C';
+    return 'CP';
+  }
+
   function calcularFluxo(){
     const seguranca = state.seguranca;
     if(!seguranca){ alert('Selecione primeiro a situação atual.'); return; }
@@ -444,72 +577,17 @@
       alert('Preencha os campos essenciais da pré-triagem.'); return;
     }
 
+    const needsRefine = !document.getElementById('blocoComplexidade').classList.contains('hidden');
+    if(needsRefine && (!state.encaminhamento || !state.gemelar || !state.us_previo || !state.risco || !state.senioridade)){
+      alert('Complete o bloco refinador de complexidade antes de calcular.');
+      return;
+    }
+
     const ex = EXAMES[exameKey];
-    let fluxo = ex.flow;
-    const motivos = [`exame solicitado: ${ex.label}`];
-
-    // Escalonamento geral
-    if(state.vinculo === 'primeira_vez'){
-      fluxo = maxFlow(fluxo, ex.flow === 'A' ? 'B' : fluxo);
-      motivos.push('primeira vez na Fetali');
-    } else {
-      motivos.push('paciente já em seguimento');
-    }
-
-    if(state.natureza === 'duvida'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('há dúvida ou preocupação clínica'); }
-    if(state.natureza === 'alteracao'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('já existe alteração / achado'); }
-
-    const precisaRefino = !document.getElementById('blocoComplexidade').classList.contains('hidden');
-    let agravantesSoftA = 0;
-
-    if(precisaRefino){
-      if(!state.encaminhamento || !state.gemelar || !state.us_previo || !state.risco || !state.senioridade){
-        alert('Complete o bloco refinador de complexidade antes de calcular.'); return;
-      }
-
-      if(state.encaminhamento === 'avaliar_melhor'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('médico orientou avaliação melhor / especialista'); agravantesSoftA += 1; }
-      if(state.encaminhamento === 'especialista'){ fluxo = maxFlow(fluxo, 'C'); motivos.push('encaminhamento explícito para medicina fetal'); agravantesSoftA += 1; }
-
-      if(state.gemelar === 'di'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('gestação gemelar dicoriônica'); agravantesSoftA += 1; }
-      if(state.gemelar === 'mono'){ fluxo = maxFlow(fluxo, 'CP'); motivos.push('gestação gemelar monocoriônica'); agravantesSoftA += 2; }
-      if(state.gemelar === 'nao_sabe'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('gemelaridade sem definição clara'); agravantesSoftA += 1; }
-
-      if(state.us_previo === 'minimizou'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('relato de minimização de achado'); agravantesSoftA += 1; }
-      if(state.us_previo === 'alterado'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('ultrassom prévio com alteração referida'); agravantesSoftA += 1; }
-      if(state.us_previo === 'nao_soube'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('informação prévia pouco clara'); agravantesSoftA += 1; }
-
-      if(state.risco === 'sim'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('problema materno/gestacional relevante'); agravantesSoftA += 1; }
-      if(state.senioridade === 'senior'){ fluxo = maxFlow(fluxo, 'B'); motivos.push('pedido / orientação para profissional mais experiente'); agravantesSoftA += 1; }
-
-      if(state.encaminhamento === 'especialista' && state.natureza === 'alteracao'){
-        fluxo = maxFlow(fluxo, 'CP');
-        motivos.push('encaminhamento + alteração já estabelecida');
-      }
-    }
-
-    // Escalonamento composto específico para Doppler/PBF/Crescimento
-    if(isSoftAExam(exameKey)){
-      if(state.vinculo === 'primeira_vez') agravantesSoftA += 1;
-      if(state.natureza === 'duvida') agravantesSoftA += 1;
-      if(state.natureza === 'alteracao') agravantesSoftA += 1;
-
-      if(agravantesSoftA >= 1) {
-        fluxo = maxFlow(fluxo, 'B');
-        motivos.push('exame-base A com pelo menos um agravante relevante');
-      }
-      if(agravantesSoftA >= 2) {
-        fluxo = maxFlow(fluxo, 'C');
-        motivos.push('cluster de incerteza em exame-base A');
-      }
-
-      if(
-        (state.encaminhamento === 'especialista' && (state.us_previo === 'alterado' || state.us_previo === 'minimizou')) ||
-        (state.vinculo === 'primeira_vez' && state.natureza === 'alteracao' && (state.us_previo === 'alterado' || state.us_previo === 'minimizou'))
-      ){
-        fluxo = maxFlow(fluxo, 'C');
-        motivos.push('combinação forte de encaminhamento/primeira vez com achado prévio');
-      }
-    }
+    const examFloor = ex.flow;
+    const caseCalc = computeCaseScore(exameKey);
+    const caseFlow = scoreToFlow(caseCalc.score);
+    const fluxo = maxFlow(examFloor, caseFlow);
 
     let rule = ex.rule;
     if(fluxo === 'CP') rule = 'CP';
@@ -519,17 +597,19 @@
     const regimeLabel = state.regime === 'convenio' ? 'Convênio' : state.regime === 'particular' ? 'Particular' : 'Ainda não informado';
     const unidade = inferUnit(state.regime, rule);
     const tempo = FLOW_DATA[fluxo].time;
-    let motivosTxt = motivos.join('; ') + '.';
+
+    let motivosTxt = `exame solicitado: ${ex.label}; piso do exame = ${FLOW_DATA[examFloor].label}; complexidade contextual = ${FLOW_DATA[caseFlow].label} (score ${caseCalc.score}). `;
+    motivosTxt += caseCalc.reasons.join('; ') + '.';
     if(ex.window) motivosTxt += ` Janela típica do exame: ${ex.window}.`;
 
-    const nivelNecessario = maxFlow(fluxo, ex.flow);
+    const nivelNecessario = fluxo;
     const listaProf = profissionaisCompativeis(nivelNecessario);
 
     document.getElementById('outFluxo').textContent = FLOW_DATA[fluxo].label;
     document.getElementById('outUnidade').textContent = unidade;
     document.getElementById('outTempo').textContent = tempo;
     document.getElementById('outRegime').textContent = regimeLabel;
-    document.getElementById('outMotivos').innerHTML = `<strong>Leitura do fluxo:</strong> ${motivosTxt}`;
+    document.getElementById('outMotivos').innerHTML = `<strong>Leitura do motor:</strong> ${motivosTxt}`;
     document.getElementById('outScript').innerHTML = `<strong>Texto sugerido para a secretária:</strong><p>“Pelo perfil do atendimento, este caso entra como <strong>${FLOW_DATA[fluxo].label}</strong>, com sugestão de <strong>${unidade}</strong> e tempo estimado de <strong>${tempo}</strong>. O regime informado foi <strong>${regimeLabel}</strong>, que ajuda no direcionamento da unidade.”</p>`;
     document.getElementById('outNivel').innerHTML = `Nível necessário estimado para alocação: <strong>${FLOW_DATA[nivelNecessario].label}</strong>.`;
     document.getElementById('outProfissionais').innerHTML = `Profissionais compatíveis: <strong>${listaProf.join(' · ')}</strong>.`;
