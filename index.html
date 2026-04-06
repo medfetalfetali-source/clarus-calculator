@@ -67,7 +67,6 @@
     .footer-note{margin-top:14px;color:var(--muted);font-size:.9rem;line-height:1.5}
     .admin-box{margin-top:14px;padding:14px;border-radius:16px;background:#f5f8ff;border:1px solid #dbe6ff}
     .pill{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:.84rem;font-weight:800;background:#edf2ff;color:#23408c;margin-right:8px}
-    /* [MOD 1/2/5/8] Estilos adicionais para novos componentes */
     .alerta-box{margin-top:12px;padding:14px 16px;border-radius:14px;font-size:.94rem;line-height:1.5;animation:fadeSlide .28s ease}
     .alerta-vermelho{background:rgba(180,62,75,.07);border-left:4px solid var(--red);color:#7a2430}
     .alerta-amarelo{background:rgba(169,110,18,.07);border-left:4px solid var(--amber);color:#6a4d0f}
@@ -134,7 +133,6 @@
     </div>
   </section>
 
-  <!-- ===== SEÇÃO 1: SITUAÇÃO ATUAL ===== -->
   <div class="card fade-in">
     <h2 class="section-title">1. Situação atual</h2>
     <p class="section-text">Primeiro perguntamos sobre sinais atuais concretos. Isso evita alarmismo, melhora a precisão da triagem e protege a paciente de uma comunicação que aumente ansiedade sem acrescentar clareza.</p>
@@ -150,7 +148,6 @@
       <span class="badge C">Gate de segurança ativado</span>
       <div id="textoSeguranca"></div>
 
-      <!-- [MOD 1] Gate P0A — sub-pergunta de avaliação médica prévia -->
       <div id="gateP0A" class="gate-p0a" style="margin-top:16px;">
         <p style="font-weight:700;margin:0 0 10px;">⚕️ A paciente já foi avaliada por médico ou pronto-atendimento?</p>
         <div class="grid">
@@ -163,10 +160,9 @@
     </div>
   </div>
 
-  <!-- ===== SEÇÃO 2: PORTA DE ENTRADA ===== -->
   <div class="card hidden" id="blocoAbertura">
     <h2 class="section-title">2. Porta de entrada do caso</h2>
-    <p class="section-text">Aqui a secretária identifica o contexto do atendimento: se é continuidade ou primeira avaliação, se é rotina ou suspeita, qual foi o exame pedido e qual o regime. Esse bloco organiza o caminho antes de refinar a complexidade.</p>
+    <p class="section-text">Aqui a secretária identifica o contexto do atendimento: se é continuidade ou primeira avaliação, se é rotina ou suspeita, qual foi o exame pedido e qual o regime. Este bloco organiza o caminho antes de refinar a complexidade.</p>
     <div class="grid grid-2">
       <div class="question-box">
         <p><strong>Já acompanha na Fetali?</strong></p>
@@ -185,7 +181,6 @@
       </div>
     </div>
 
-    <!-- [MOD 4] Indicador visual: primeira vez + alteração = C mínimo -->
     <div id="elevatorIndicator" class="alerta-box alerta-vermelho hidden" style="margin-top:14px;">
       🔺 <strong>Elevator ativado:</strong> primeiro atendimento na Fetali com alteração/achado identificado → classificação <strong>C mínimo forçado</strong>, independentemente do exame solicitado. Centro de decisão fetal (SA) é a unidade adequada.
     </div>
@@ -233,9 +228,7 @@
             </optgroup>
           </select>
         </div>
-        <!-- [MOD 2] Alerta de janela IG × exame (injetado pelo JS) -->
         <div id="alertaJanelaIG" class="hidden"></div>
-        <!-- [MOD 5] Alerta SA-exclusivo (injetado pelo JS) -->
         <div id="alertaSAExclusivo" class="hidden"></div>
       </div>
 
@@ -246,13 +239,11 @@
           <button class="option" data-group="regime" data-value="particular">Particular</button>
           <button class="option" data-group="regime" data-value="nao_sabe">Ainda não sabe informar</button>
         </div>
-        <!-- [MOD 3] Alerta fallback regime (injetado pelo JS) -->
         <div id="alertaRegimeFallback" class="hidden"></div>
       </div>
     </div>
   </div>
 
-  <!-- ===== SEÇÃO 3: REFINADORES ===== -->
   <div class="card hidden" id="blocoComplexidade">
     <h2 class="section-title">3. Refinadores de complexidade</h2>
     <p class="section-text">Este bloco só aparece quando há chance real de maior carga cognitiva. A lógica é simples: não sobrecarregar a triagem de rotina, mas abrir refinadores quando o caso pode exigir mais tempo, unidade específica ou especialista.</p>
@@ -302,7 +293,6 @@
     </div>
   </div>
 
-  <!-- ===== RESULTADO ===== -->
   <div class="card hidden" id="resultadoCard">
     <h2 class="section-title">Resultado do fluxograma</h2>
     <div class="result">
@@ -313,17 +303,13 @@
         <div class="kpi"><div class="kpi-label">Regime</div><div class="kpi-value" id="outRegime">—</div></div>
       </div>
 
-      <!-- [MOD 5] Alerta hard-block SA-exclusivo no resultado -->
       <div id="outSAExclusivo" class="hidden"></div>
-      <!-- [MOD 3] Alerta fallback regime no resultado -->
       <div id="outRegimeAlerta" class="hidden"></div>
-      <!-- [MOD 2] Alerta janela IG no resultado -->
       <div id="outJanelaAlerta" class="hidden"></div>
 
       <div class="note" id="outMotivos"></div>
       <div class="flow-box" id="outScript"></div>
 
-      <!-- [MOD 8] Gate SA indisponível -->
       <div id="gateSAIndisponivel" class="sa-gate-box hidden">
         <p style="font-weight:700;margin:0 0 10px;">📋 Santo Agostinho está disponível para este horário?</p>
         <div class="grid grid-2">
@@ -347,19 +333,11 @@
 
 <script>
   // ======================================================================
-  // MOTOR V10.1 — com 7 modificações CLARUS integradas
-  // Changelog v10 → v10.1:
-  //   [MOD 1] Gate P0A (sub-pergunta urgência)
-  //   [MOD 2] Cruzamento IG × exame (alerta janela automático)
-  //   [MOD 3] Fallback regime "não sabe" (regra por complexidade)
-  //   [MOD 4] Elevator primeira_vez + alteração → C mínimo
-  //   [MOD 5] Hard-block SA-exclusivo (amnio/BVC/aval.espec.)
-  //   [MOD 6] Audit trail completo no copiar resumo
-  //   [MOD 8] Gate SA indisponível (VS alternativa ou lista)
+  // MOTOR V10.1 — com 7 modificações CLARUS integradas e auditado
   // ======================================================================
 
   const state = {};
-  let calculatedIG = null; // [MOD 2] IG global calculada
+  let calculatedIG = null;
 
   const EXAMES = {
     us_transvaginal:{flow:'A',time:'15–20 min',label:'US transvaginal',rule:'A',grupo:'gineco'},
@@ -386,17 +364,14 @@
     gemelar_monocorionica:{flow:'C',time:'40–60 min',label:'Gemelar monocoriônica',rule:'C'},
     suspeita_malformacao:{flow:'C',time:'40–60 min',label:'Suspeita de malformação',rule:'C'},
     neurosonografia:{flow:'C',time:'40–60 min',label:'Neurosonografia',rule:'C'},
-    avaliacao_saude_fetal:{flow:'C',time:'40–60 min',label:'Avaliação Especializada da Saúde Fetal',rule:'CEX',sa_exclusivo:true}, // [MOD 5]
+    avaliacao_saude_fetal:{flow:'C',time:'40–60 min',label:'Avaliação Especializada da Saúde Fetal',rule:'CEX',sa_exclusivo:true},
 
-    amniocentese:{flow:'CP',time:'60–120 min',label:'Amniocentese',rule:'CP',sa_exclusivo:true,janela:{min:15,max:99,tipo:'hard'}}, // [MOD 5]
-    bvc:{flow:'CP',time:'60–120 min',label:'BVC — biópsia de vilo corial',rule:'CP',sa_exclusivo:true,janela:{min:11,max:14,tipo:'hard'}}, // [MOD 5]
-    encaminhamento_cirurgia_fetal:{flow:'CP',time:'60–120 min',label:'Encaminhamento cirurgia fetal',rule:'CP',sa_exclusivo:true} // [MOD 5]
+    amniocentese:{flow:'CP',time:'60–120 min',label:'Amniocentese',rule:'CP',sa_exclusivo:true,janela:{min:15,max:99,tipo:'hard'}},
+    bvc:{flow:'CP',time:'60–120 min',label:'BVC — biópsia de vilo corial',rule:'CP',sa_exclusivo:true,janela:{min:11,max:14,tipo:'hard'}},
+    encaminhamento_cirurgia_fetal:{flow:'CP',time:'60–120 min',label:'Encaminhamento cirurgia fetal',rule:'CP',sa_exclusivo:true}
   };
 
-  // [MOD 5] Lista canônica de exames que NUNCA vão para VS
   const SA_EXCLUSIVOS = ['amniocentese','bvc','avaliacao_saude_fetal','encaminhamento_cirurgia_fetal'];
-
-  // [MOD 8] Exames C/C+ que PODEM ir para VS alternativamente
   const PERMITE_VS_ALTERNATIVA = ['ecocardiografia_fetal','neurosonografia','gemelar_monocorionica'];
 
   const FLOW_DATA = {
@@ -440,9 +415,7 @@
       btn.classList.add('active');
       state[group] = btn.dataset.value;
 
-      // [MOD 1] Lógica P0A
       if(group === 'p0a') handleP0A();
-      // [MOD 8] Lógica SA disponibilidade
       if(group === 'sa_disp') handleSADisponibilidade();
 
       handleProgressiveUI();
@@ -450,8 +423,8 @@
   });
   document.getElementById('exame').addEventListener('change', ()=>{
     handleProgressiveUI();
-    verificarJanelaIG();      // [MOD 2]
-    verificarSAExclusivo();   // [MOD 5]
+    verificarJanelaIG();
+    verificarSAExclusivo();
   });
 
   function showBlock(id, show=true){
@@ -468,7 +441,6 @@
     }
   }
 
-  // ===== [MOD 1] HANDLER P0A =====
   function handleP0A(){
     const val = state.p0a;
     const div = document.getElementById('p0aResultado');
@@ -494,13 +466,11 @@
     div.innerHTML = r.html;
     showBlock('p0aResultado', true);
 
-    // Se avaliada com pedido, liberar seção 2
     if(val === 'avaliada_com_pedido'){
       showBlock('blocoAbertura', true);
     }
   }
 
-  // ===== [MOD 2] CRUZAMENTO IG × EXAME =====
   function verificarJanelaIG(){
     const alertaDiv = document.getElementById('alertaJanelaIG');
     alertaDiv.className = 'hidden';
@@ -512,7 +482,7 @@
     const ex = EXAMES[exameKey];
     if(!ex || !ex.janela) return;
 
-    const ig = Math.floor(calculatedIG / 7); // semanas completas
+    const ig = Math.floor(calculatedIG / 7);
     const j = ex.janela;
     let msg = '', cls = '';
 
@@ -551,7 +521,6 @@
     }
   }
 
-  // ===== [MOD 5] VERIFICAR SA-EXCLUSIVO =====
   function verificarSAExclusivo(){
     const div = document.getElementById('alertaSAExclusivo');
     div.className = 'hidden';
@@ -570,12 +539,11 @@
     }
   }
 
-  // ===== PROGRESSIVE UI =====
   function handleProgressiveUI(){
     const seguranca = state.seguranca;
     const gateText = document.getElementById('textoSeguranca');
     showBlock('resultadoCard', false);
-    showBlock('gateSAIndisponivel', false); // [MOD 8] reset
+    showBlock('gateSAIndisponivel', false);
 
     if(!seguranca){
       showBlock('blocoAbertura', false);
@@ -588,7 +556,6 @@
       showBlock('blocoComplexidade', false);
       gateText.innerHTML = '<p><strong>Orientação inicial:</strong> o fluxo de classificação é interrompido. Responda abaixo para definir o encaminhamento correto.</p>';
 
-      // [MOD 1] Se P0A respondido com pedido → manter bloco abertura
       if(state.p0a !== 'avaliada_com_pedido'){
         showBlock('blocoAbertura', false);
       }
@@ -598,7 +565,6 @@
     showBlock('saidaSeguranca', false);
     showBlock('blocoAbertura', true);
 
-    // [MOD 4] Elevator primeira_vez + alteração
     const elInd = document.getElementById('elevatorIndicator');
     if(state.vinculo === 'primeira_vez' && state.natureza === 'alteracao'){
       elInd.classList.remove('hidden');
@@ -606,10 +572,8 @@
       elInd.classList.add('hidden');
     }
 
-    // [MOD 5] Verificar SA-exclusivo quando regime muda
     verificarSAExclusivo();
 
-    // [MOD 3] Alerta fallback regime
     const regFb = document.getElementById('alertaRegimeFallback');
     if(state.regime === 'nao_sabe'){
       regFb.className = 'alerta-box alerta-amarelo';
@@ -637,7 +601,6 @@
   }
 
   function inferUnit(regime, rule, exameKey){
-    // [MOD 5] SA-exclusivo sempre Santo Agostinho
     if(SA_EXCLUSIVOS.includes(exameKey)){
       if(regime === 'convenio') return 'Santo Agostinho exclusivo (orientar regime particular)';
       return 'Santo Agostinho exclusivo';
@@ -647,7 +610,6 @@
     if(rule === 'C') return regime === 'particular' ? 'Santo Agostinho preferencial' : 'Avaliar fluxo institucional / especialista';
     if(rule === 'B') return 'Vila da Serra ou Santo Agostinho';
 
-    // [MOD 3] Fallback regime
     if(regime === 'nao_sabe'){
       return 'Vila da Serra (default convênio) — confirmar regime';
     }
@@ -678,7 +640,6 @@
       reasons.push('já existe alteração / achado');
     }
 
-    // [MOD 4] Elevator: primeira_vez + alteração → C mínimo forçado (score ≥ 5)
     if(state.vinculo === 'primeira_vez' && state.natureza === 'alteracao'){
       score = Math.max(score, 5);
       reasons.push('ELEVATOR: 1º atendimento + alteração → C mínimo forçado');
@@ -700,8 +661,8 @@
         reasons.push('gestação gemelar dicoriônica');
       }
       if(state.gemelar === 'mono'){
-        score += 5;
-        reasons.push('gestação gemelar monocoriônica');
+        score = 8;
+        reasons.push('ELEVATOR: Gemelar monocoriônica exige complexidade máxima (CP)');
       }
       if(state.gemelar === 'nao_sabe'){
         score += 2;
@@ -730,6 +691,11 @@
         score += 2;
         reasons.push('pedido / orientação para profissional mais experiente');
       }
+    }
+
+    if(exameKey === 'ecocardiografia_fetal' && (state.natureza === 'alteracao' || state.us_previo === 'alterado')){
+        score = Math.max(score, 6);
+        reasons.push('Agravante detectado para Ecocardiografia: upgrade para fluxo C');
     }
 
     if(isSoftAExam(exameKey)){
@@ -772,11 +738,6 @@
       reasons.push('encaminhamento + alteração já estabelecida');
     }
 
-    if(state.gemelar === 'mono'){
-      score = Math.max(score, 8);
-      reasons.push('gemelar monocoriônica exige escalonamento forte');
-    }
-
     return { score, reasons };
   }
 
@@ -787,16 +748,14 @@
     return 'CP';
   }
 
-  // ===== CALCULAR FLUXO PRINCIPAL =====
   function calcularFluxo(){
     const seguranca = state.seguranca;
     if(!seguranca){ alert('Selecione primeiro a situação atual.'); return; }
 
-    // [MOD 1] Se urgência ativa, verificar P0A
     if(seguranca !== 'nenhum'){
       if(!state.p0a){ alert('Responda se a paciente já foi avaliada por médico (gate P0A).'); return; }
       if(state.p0a !== 'avaliada_com_pedido'){
-        alert('Paciente sem avaliação médica ou sem pedido — o fluxograma não prossegue. Siga a orientação do gate P0A.');
+        alert('ATENÇÃO: Este caso requer avaliação médica prévia e PEDIDO EM MÃOS. Não é permitido prosseguir com o agendamento.');
         return;
       }
     }
@@ -823,7 +782,6 @@
     else if(fluxo === 'C' && (rule === 'A' || rule === 'B')) rule = 'C';
     else if(fluxo === 'B' && rule === 'A') rule = 'B';
 
-    // [MOD 3] Regime fallback
     let regimeLabel = state.regime === 'convenio' ? 'Convênio' : state.regime === 'particular' ? 'Particular' : 'Ainda não informado';
     let regimeEfetivo = state.regime;
     const regimeAlertaDiv = document.getElementById('outRegimeAlerta');
@@ -847,7 +805,6 @@
     const unidade = inferUnit(regimeEfetivo, rule, exameKey);
     const tempo = FLOW_DATA[fluxo].time;
 
-    // [MOD 5] Hard-block SA-exclusivo no resultado
     const saExDiv = document.getElementById('outSAExclusivo');
     if(SA_EXCLUSIVOS.includes(exameKey)){
       if(state.regime === 'convenio'){
@@ -861,7 +818,6 @@
       saExDiv.className = 'hidden';
     }
 
-    // [MOD 2] Alerta janela IG no resultado
     const janelaDiv = document.getElementById('outJanelaAlerta');
     if(calculatedIG !== null && ex.janela){
       const igSem = Math.floor(calculatedIG / 7);
@@ -896,7 +852,6 @@
       janelaDiv.className = 'hidden';
     }
 
-    // Motivos
     let motivosTxt = `exame solicitado: ${ex.label}; piso do exame = ${FLOW_DATA[examFloor].label}; complexidade contextual = ${FLOW_DATA[caseFlow].label} (score ${caseCalc.score}). `;
     motivosTxt += caseCalc.reasons.join('; ') + '.';
     if(ex.window) motivosTxt += ` Janela típica do exame: ${ex.window}.`;
@@ -913,7 +868,6 @@
     document.getElementById('outNivel').innerHTML = `Nível necessário estimado para alocação: <strong>${FLOW_DATA[nivelNecessario].label}</strong>.`;
     document.getElementById('outProfissionais').innerHTML = `Profissionais compatíveis: <strong>${listaProf.join(' · ')}</strong>.`;
 
-    // [MOD 8] Mostrar gate SA indisponível se unidade sugerida é SA e não é SA-exclusivo
     if(unidade.includes('Santo Agostinho') && !SA_EXCLUSIVOS.includes(exameKey)){
       showBlock('gateSAIndisponivel', true);
     } else {
@@ -925,7 +879,6 @@
     document.getElementById('resultadoCard').scrollIntoView({behavior:'smooth', block:'start'});
   }
 
-  // ===== [MOD 8] HANDLER SA DISPONIBILIDADE =====
   function handleSADisponibilidade(){
     const val = state.sa_disp;
     const div = document.getElementById('saDispResultado');
@@ -937,7 +890,6 @@
       div.className = 'alerta-box alerta-verde';
       div.innerHTML = '✅ Confirmar agendamento na unidade Santo Agostinho.';
     } else {
-      // SA indisponível — verificar se permite VS alternativa
       if(PERMITE_VS_ALTERNATIVA.includes(exameKey)){
         div.className = 'alerta-box alerta-amarelo';
         div.innerHTML = '🔄 <strong>SA indisponível — VS alternativa possível.</strong><br>"A unidade Santo Agostinho está sem vaga no momento. Temos disponibilidade na Vila da Serra com profissional capacitado. Você aceita ou prefere aguardar vaga SA?"';
@@ -952,7 +904,6 @@
     showBlock('saDispResultado', true);
   }
 
-  // ===== [MOD 6] COPIAR RESUMO COM AUDIT TRAIL =====
   function copiarResumo(){
     const fluxo = document.getElementById('outFluxo').textContent;
     if(fluxo === '—') return;
@@ -961,7 +912,6 @@
     const ex = EXAMES[exameKey] || {};
     const agora = new Date().toLocaleString('pt-BR');
 
-    // Audit trail completo
     const trail = [
       `═══ CLARUS v10.1 — Resumo Pré-Triagem ═══`,
       `Data/hora: ${agora}`,
@@ -1000,7 +950,7 @@
 
   function resetarTudo(){
     Object.keys(state).forEach(k=>delete state[k]);
-    calculatedIG = null; // [MOD 2]
+    calculatedIG = null;
     document.querySelectorAll('.option').forEach(el=>el.classList.remove('active'));
     document.getElementById('exame').value='';
     showBlock('saidaSeguranca', false);
@@ -1010,7 +960,6 @@
     showBlock('gateSAIndisponivel', false);
     document.getElementById('copyBtn').style.display='none';
     document.getElementById('outFluxo').textContent='—';
-    // Limpar alertas
     ['alertaJanelaIG','alertaSAExclusivo','alertaRegimeFallback','outSAExclusivo','outRegimeAlerta','outJanelaAlerta','p0aResultado','saDispResultado','elevatorIndicator'].forEach(id=>{
       const el = document.getElementById(id);
       if(el){el.className='hidden';el.innerHTML='';}
@@ -1018,7 +967,6 @@
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
-  // ===== CALCULADORA IG (original + [MOD 2] armazena resultado) =====
   function parseDate(iso){ if(!iso) return null; const [y,m,d] = iso.split('-').map(Number); return new Date(y,m-1,d); }
   function addDays(date, days){ const d = new Date(date); d.setDate(d.getDate()+days); return d; }
   function diffDays(a,b){ const ms = 24*60*60*1000; return Math.round((a-b)/ms); }
@@ -1078,7 +1026,6 @@
     res.innerHTML = blocos.join('');
     janelaBox.innerHTML = `<strong>Janela de IG:</strong><div style="margin-top:8px;">${detectWindow(chosenGA)}</div>`;
 
-    // [MOD 2] Armazenar IG calculada e verificar cruzamento
     calculatedIG = chosenGA;
     verificarJanelaIG();
   }
